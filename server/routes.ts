@@ -9,6 +9,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 const MODELS_DIR = path.join(process.cwd(), "server", "models");
+const INFERENCE_URL = `http://127.0.0.1:${process.env.INFERENCE_PORT || 5001}`;
 
 const ai = new GoogleGenAI({
   apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
@@ -58,6 +59,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const base64Image = base64.includes(",") ? base64.split(",")[1] : base64;
       const mimeType = clientMimeType || "image/jpeg";
 
+      interface ModelPrediction { class: string; confidence: number; probabilities?: Record<string, number>; folds_used?: number }
+      let modelResult: ModelPrediction | null = null;
+
+      try {
+        const inferenceRes = await fetch(`${INFERENCE_URL}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ base64: base64Image }),
+        });
+        if (inferenceRes.ok) {
+          modelResult = await inferenceRes.json() as ModelPrediction;
+          console.log("PyTorch model prediction:", modelResult);
+        } else {
+          console.warn("Inference server returned error, falling back to Gemini");
+        }
+      } catch (err) {
+        console.warn("Inference server unavailable, falling back to Gemini:", (err as Error).message);
+      }
+
+      if (modelResult && modelResult.confidence > 0.3) {
+        let description = "";
+        try {
+          const descResponse = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    inlineData: { data: base64Image, mimeType },
+                  },
+                  {
+                    text: `This image has been classified by a ConvNeXt deep learning model as "${modelResult.class}" date palm variety with ${(modelResult.confidence * 100).toFixed(1)}% confidence.
+
+Write a brief expert description (2-3 sentences) about what you see in the image and the characteristics of the "${modelResult.class}" variety. Include distinguishing features visible in the image.
+${lang === "ar" ? "Write entirely in Arabic." : "Write entirely in English."}`,
+                  },
+                ],
+              },
+            ],
+          });
+          description = descResponse.text || "";
+        } catch {
+          const descriptions: Record<string, Record<string, string>> = {
+            Khalas: {
+              en: "Khalas dates are golden-amber colored with a rich caramel flavor. They are one of the most prized varieties in the Gulf region.",
+              ar: "تمور الخلاص ذات لون ذهبي كهرماني بنكهة كراميل غنية. وهي من أكثر الأصناف المرغوبة في منطقة الخليج.",
+            },
+            Razeez: {
+              en: "Razeez dates are dark brown and elongated with a sweet, mild flavor. They are commonly grown in Saudi Arabia.",
+              ar: "تمور الرزيز بنية داكنة ومستطيلة ذات نكهة حلوة معتدلة. تُزرع بشكل شائع في المملكة العربية السعودية.",
+            },
+            Shishi: {
+              en: "Shishi dates are small to medium-sized with a dark color and sweet taste. They are popular in the Eastern Province of Saudi Arabia.",
+              ar: "تمور الشيشي صغيرة إلى متوسطة الحجم ذات لون داكن وطعم حلو. تحظى بشعبية في المنطقة الشرقية بالمملكة العربية السعودية.",
+            },
+          };
+          const langKey = lang === "ar" ? "ar" : "en";
+          description = descriptions[modelResult.class]?.[langKey] || "";
+        }
+
+        return res.json({
+          isPalm: true,
+          class: modelResult.class,
+          confidence: modelResult.confidence,
+          probabilities: modelResult.probabilities,
+          folds_used: modelResult.folds_used,
+          source: "convnext_ensemble",
+          description,
+        });
+      }
+
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: [
@@ -65,10 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             role: "user",
             parts: [
               {
-                inlineData: {
-                  data: base64Image,
-                  mimeType: mimeType,
-                },
+                inlineData: { data: base64Image, mimeType },
               },
               {
                 text: `You are an expert agricultural botanist specializing in date palm identification. Analyze this image and determine if it shows a date palm tree or dates fruit.
@@ -95,9 +165,10 @@ ${lang === "ar" ? "Write the description in Arabic." : "Write the description in
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0]);
+        result.source = "gemini_vision";
         res.json(result);
       } else {
-        res.json({ isPalm: false, class: "Unknown", confidence: 0, description: "Could not analyze the image" });
+        res.json({ isPalm: false, class: "Unknown", confidence: 0, description: "Could not analyze the image", source: "gemini_vision" });
       }
     } catch (error) {
       console.error("Classification error:", error);
