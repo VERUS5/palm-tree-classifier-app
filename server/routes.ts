@@ -11,13 +11,16 @@ import * as path from "node:path";
 const MODELS_DIR = path.join(process.cwd(), "server", "models");
 const INFERENCE_URL = `http://127.0.0.1:${process.env.INFERENCE_PORT || 5001}`;
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
-  httpOptions: {
-    apiVersion: "",
-    baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
-  },
-});
+const geminiApiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+const geminiBaseUrl = process.env.AI_INTEGRATIONS_GEMINI_BASE_URL;
+
+const aiConfig: ConstructorParameters<typeof GoogleGenAI>[0] = {
+  apiKey: geminiApiKey,
+};
+if (geminiBaseUrl) {
+  aiConfig.httpOptions = { apiVersion: "", baseUrl: geminiBaseUrl };
+}
+const ai = new GoogleGenAI(aiConfig);
 
 function retrieveContext(allChunks: { topic: string; content: string }[], query: string): string {
   const queryLower = query.toLowerCase();

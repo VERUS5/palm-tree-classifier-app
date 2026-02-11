@@ -1,0 +1,9 @@
+node_modules
+.git
+*.log
+static-build
+server_dist
+.pythonlibs
+__pycache__
+.expo
+.cache
