@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import * as fs from "fs";
 import * as path from "path";
+import { spawn, type ChildProcess } from "child_process";
 
 const app = express();
 const log = console.log;
@@ -226,12 +227,62 @@ function setupErrorHandler(app: express.Application) {
   });
 }
 
+let inferenceProcess: ChildProcess | null = null;
+
+function startInferenceServer() {
+  const inferenceScript = path.resolve(process.cwd(), "server", "inference_server.py");
+  if (!fs.existsSync(inferenceScript)) {
+    log("Inference server script not found, skipping PyTorch model loading");
+    return;
+  }
+
+  const modelsDir = path.resolve(process.cwd(), "server", "models");
+  const modelFiles = fs.readdirSync(modelsDir).filter(f => f.endsWith(".pth"));
+  if (modelFiles.length === 0) {
+    log("No .pth model files found, skipping inference server");
+    return;
+  }
+
+  log(`Starting Python inference server with ${modelFiles.length} model files...`);
+  inferenceProcess = spawn("python3", [inferenceScript], {
+    env: { ...process.env, INFERENCE_PORT: process.env.INFERENCE_PORT || "5001" },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  inferenceProcess.stdout?.on("data", (data: Buffer) => {
+    const msg = data.toString().trim();
+    if (msg) log(`[inference] ${msg}`);
+  });
+
+  inferenceProcess.stderr?.on("data", (data: Buffer) => {
+    const msg = data.toString().trim();
+    if (msg) log(`[inference] ${msg}`);
+  });
+
+  inferenceProcess.on("exit", (code) => {
+    log(`[inference] Process exited with code ${code}`);
+    inferenceProcess = null;
+  });
+}
+
+function stopInferenceServer() {
+  if (inferenceProcess) {
+    inferenceProcess.kill("SIGTERM");
+    inferenceProcess = null;
+  }
+}
+
+process.on("SIGTERM", () => { stopInferenceServer(); process.exit(0); });
+process.on("SIGINT", () => { stopInferenceServer(); process.exit(0); });
+
 (async () => {
   setupCors(app);
   setupBodyParsing(app);
   setupRequestLogging(app);
 
   configureExpoAndLanding(app);
+
+  startInferenceServer();
 
   const server = await registerRoutes(app);
 
