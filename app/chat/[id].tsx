@@ -18,6 +18,7 @@ import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/query-client";
+import { useI18n } from "@/lib/i18n";
 
 interface Message {
   id: string;
@@ -31,12 +32,11 @@ function generateUniqueId(): string {
   return `msg-${Date.now()}-${messageCounter}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-const SUGGESTED_QUESTIONS = [
-  { icon: "water-outline" as const, text: "How should I water this tree?" },
-  { icon: "calendar-outline" as const, text: "When is the harvest season?" },
-  { icon: "bug-outline" as const, text: "What pests should I watch for?" },
-  { icon: "nutrition-outline" as const, text: "What fertilizer does it need?" },
-];
+const treeNamesAr: Record<string, string> = {
+  Khalas: "خلاص",
+  Razeez: "رزيز",
+  Shishi: "شيشي",
+};
 
 function TypingIndicator() {
   return (
@@ -52,7 +52,7 @@ function TypingIndicator() {
   );
 }
 
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({ message, isRTL }: { message: Message; isRTL: boolean }) {
   const isUser = message.role === "user";
   return (
     <View style={[styles.messageBubbleContainer, isUser ? styles.userContainer : styles.assistantContainer]}>
@@ -62,7 +62,7 @@ function MessageBubble({ message }: { message: Message }) {
         </View>
       )}
       <View style={[isUser ? styles.userBubble : styles.assistantBubble, { maxWidth: "78%" }]}>
-        <Text style={isUser ? styles.userText : styles.assistantText}>{message.content}</Text>
+        <Text style={[isUser ? styles.userText : styles.assistantText, isRTL && styles.textRTL]}>{message.content}</Text>
       </View>
     </View>
   );
@@ -70,6 +70,7 @@ function MessageBubble({ message }: { message: Message }) {
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
+  const { t, lang, isRTL } = useI18n();
   const params = useLocalSearchParams<{
     id: string;
     treeClass?: string;
@@ -92,6 +93,21 @@ export default function ChatScreen() {
   const inputRef = useRef<TextInput>(null);
   const initializedRef = useRef(false);
 
+  const suggestedQuestions = [
+    { icon: "water-outline" as const, text: t.suggestedWater },
+    { icon: "calendar-outline" as const, text: t.suggestedHarvest },
+    { icon: "bug-outline" as const, text: t.suggestedPests },
+    { icon: "nutrition-outline" as const, text: t.suggestedFertilizer },
+  ];
+
+  const getTreeDisplayName = () => {
+    if (!treeClass || treeClass === "Unknown") {
+      return t.palmAssistant;
+    }
+    const name = isRTL ? (treeNamesAr[treeClass] || treeClass) : treeClass;
+    return `${name} ${t.palm}`;
+  };
+
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
@@ -107,12 +123,17 @@ export default function ChatScreen() {
         if (data.length > 0) {
           setMessages(data.map((m: any) => ({ id: m.id.toString(), role: m.role, content: m.content })));
         } else if (description) {
+          const treeName = isRTL ? (treeNamesAr[treeClass] || treeClass) : treeClass;
           const welcomeMsg: Message = {
             id: generateUniqueId(),
             role: "assistant",
             content: isPalm
-              ? `I've identified this as a **${treeClass}** palm tree with ${Math.round(confidence * 100)}% confidence.\n\n${description}\n\nFeel free to ask me anything about caring for this tree!`
-              : `${description}\n\nI wasn't able to identify this as a known palm tree variety. You can still ask me general questions about date palm cultivation.`,
+              ? isRTL
+                ? `تم التعرف على هذه النخلة على أنها **${treeName}** بنسبة ثقة ${Math.round(confidence * 100)}%.\n\n${description}\n\nلا تتردد في سؤالي عن أي شيء يخص رعاية هذه النخلة!`
+                : `I've identified this as a **${treeClass}** palm tree with ${Math.round(confidence * 100)}% confidence.\n\n${description}\n\nFeel free to ask me anything about caring for this tree!`
+              : isRTL
+                ? `${description}\n\nلم أتمكن من تحديد هذه الصورة كنوع معروف من النخيل. يمكنك سؤالي عن زراعة النخيل بشكل عام.`
+                : `${description}\n\nI wasn't able to identify this as a known palm tree variety. You can still ask me general questions about date palm cultivation.`,
           };
           setMessages([welcomeMsg]);
         }
@@ -131,7 +152,6 @@ export default function ChatScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setInputText("");
 
-    const currentMessages = [...messages];
     const userMessage: Message = { id: generateUniqueId(), role: "user", content: messageText };
     setMessages((prev) => [...prev, userMessage]);
     setIsStreaming(true);
@@ -145,7 +165,7 @@ export default function ChatScreen() {
       const response = await fetch(`${baseUrl}api/sessions/${sessionId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-        body: JSON.stringify({ content: messageText }),
+        body: JSON.stringify({ content: messageText, lang }),
       });
 
       if (!response.ok) throw new Error("Failed to get response");
@@ -200,14 +220,14 @@ export default function ChatScreen() {
       if (!assistantAdded) {
         setMessages((prev) => [
           ...prev,
-          { id: generateUniqueId(), role: "assistant", content: "Sorry, I encountered an error. Please try again." },
+          { id: generateUniqueId(), role: "assistant", content: t.errorResponse },
         ]);
       }
     } finally {
       setIsStreaming(false);
       setShowTyping(false);
     }
-  }, [inputText, isStreaming, messages, sessionId]);
+  }, [inputText, isStreaming, messages, sessionId, lang, t]);
 
   const reversedMessages = [...messages].reverse();
   const webTopInset = Platform.OS === "web" ? 67 : 0;
@@ -215,18 +235,18 @@ export default function ChatScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
-      <View style={styles.navBar}>
+      <View style={[styles.navBar, isRTL && styles.rowReverse]}>
         <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={12}>
-          <Ionicons name="chevron-back" size={24} color={Colors.light.forest} />
+          <Ionicons name={isRTL ? "chevron-forward" : "chevron-back"} size={24} color={Colors.light.forest} />
         </Pressable>
         <View style={styles.navCenter}>
-          <Text style={styles.navTitle} numberOfLines={1}>
-            {treeClass && treeClass !== "Unknown" ? `${treeClass} Palm` : "Palm Assistant"}
+          <Text style={[styles.navTitle, isRTL && styles.textRTL]} numberOfLines={1}>
+            {getTreeDisplayName()}
           </Text>
           {treeClass && treeClass !== "Unknown" && (
-            <View style={styles.navBadge}>
+            <View style={[styles.navBadge, isRTL && styles.rowReverse]}>
               <MaterialCommunityIcons name="palm-tree" size={12} color={Colors.light.forest} />
-              <Text style={styles.navBadgeText}>Identified</Text>
+              <Text style={styles.navBadgeText}>{t.identified}</Text>
             </View>
           )}
         </View>
@@ -241,17 +261,17 @@ export default function ChatScreen() {
         ) : messages.length === 0 ? (
           <View style={styles.welcomeContainer}>
             <MaterialCommunityIcons name="palm-tree" size={56} color={Colors.light.accent} />
-            <Text style={styles.welcomeTitle}>Ask me anything</Text>
-            <Text style={styles.welcomeText}>I can help with irrigation, harvesting, pest control, and more</Text>
+            <Text style={[styles.welcomeTitle, isRTL && styles.textRTL]}>{t.askAnything}</Text>
+            <Text style={[styles.welcomeText, isRTL && styles.textRTL]}>{t.askAnythingDesc}</Text>
             <View style={styles.suggestedContainer}>
-              {SUGGESTED_QUESTIONS.map((q, i) => (
+              {suggestedQuestions.map((q, i) => (
                 <Pressable
                   key={i}
-                  style={({ pressed }) => [styles.suggestedButton, pressed && { opacity: 0.7 }]}
+                  style={({ pressed }) => [styles.suggestedButton, pressed && { opacity: 0.7 }, isRTL && styles.rowReverse]}
                   onPress={() => handleSend(q.text)}
                 >
                   <Ionicons name={q.icon} size={16} color={Colors.light.forest} />
-                  <Text style={styles.suggestedText}>{q.text}</Text>
+                  <Text style={[styles.suggestedText, isRTL && styles.textRTL]}>{q.text}</Text>
                 </Pressable>
               ))}
             </View>
@@ -260,7 +280,7 @@ export default function ChatScreen() {
           <FlatList
             data={reversedMessages}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <MessageBubble message={item} />}
+            renderItem={({ item }) => <MessageBubble message={item} isRTL={isRTL} />}
             inverted={messages.length > 0}
             ListHeaderComponent={showTyping ? <TypingIndicator /> : null}
             contentContainerStyle={styles.messagesList}
@@ -271,19 +291,20 @@ export default function ChatScreen() {
         )}
 
         <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, webBottomInset) + 8 }]}>
-          <View style={styles.inputWrapper}>
+          <View style={[styles.inputWrapper, isRTL && styles.rowReverse]}>
             <TextInput
               ref={inputRef}
-              style={styles.input}
+              style={[styles.input, isRTL && styles.textRTL]}
               value={inputText}
               onChangeText={setInputText}
-              placeholder="Ask about your palm tree..."
+              placeholder={t.askPlaceholder}
               placeholderTextColor={Colors.light.placeholder}
               multiline
               maxLength={2000}
               blurOnSubmit={false}
               onSubmitEditing={() => handleSend()}
               editable={!isStreaming}
+              textAlign={isRTL ? "right" : "left"}
             />
             <Pressable
               style={[styles.sendButton, (!inputText.trim() || isStreaming) && styles.sendButtonDisabled]}
@@ -513,5 +534,12 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: Colors.light.surfaceSecondary,
+  },
+  rowReverse: {
+    flexDirection: "row-reverse",
+  },
+  textRTL: {
+    textAlign: "right",
+    writingDirection: "rtl",
   },
 });
