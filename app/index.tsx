@@ -31,6 +31,9 @@ interface ClassificationResult {
   class: string;
   confidence: number;
   description: string;
+  source?: string;
+  probabilities?: Record<string, number>;
+  folds_used?: number;
 }
 
 const treeIcons: Record<string, string> = {
@@ -166,6 +169,7 @@ export default function HomeScreen() {
           confidence: classification.confidence.toString(),
           description: classification.description,
           isPalm: classification.isPalm.toString(),
+          source: classification.source || "gemini_vision",
         },
       });
     } catch (error) {

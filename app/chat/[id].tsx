@@ -77,6 +77,7 @@ export default function ChatScreen() {
     confidence?: string;
     description?: string;
     isPalm?: string;
+    source?: string;
   }>();
 
   const sessionId = params.id;
@@ -84,6 +85,7 @@ export default function ChatScreen() {
   const confidence = params.confidence ? parseFloat(params.confidence) : 0;
   const description = params.description || "";
   const isPalm = params.isPalm !== "false";
+  const source = params.source || "";
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -124,13 +126,17 @@ export default function ChatScreen() {
           setMessages(data.map((m: any) => ({ id: m.id.toString(), role: m.role, content: m.content })));
         } else if (description) {
           const treeName = isRTL ? (treeNamesAr[treeClass] || treeClass) : treeClass;
+          const isConvNeXt = source === "convnext_ensemble";
+          const sourceLabel = isConvNeXt
+            ? isRTL ? "نموذج ConvNeXt المحلي" : "ConvNeXt AI Model"
+            : isRTL ? "Gemini Vision" : "Gemini Vision";
           const welcomeMsg: Message = {
             id: generateUniqueId(),
             role: "assistant",
             content: isPalm
               ? isRTL
-                ? `تم التعرف على هذه النخلة على أنها **${treeName}** بنسبة ثقة ${Math.round(confidence * 100)}%.\n\n${description}\n\nلا تتردد في سؤالي عن أي شيء يخص رعاية هذه النخلة!`
-                : `I've identified this as a **${treeClass}** palm tree with ${Math.round(confidence * 100)}% confidence.\n\n${description}\n\nFeel free to ask me anything about caring for this tree!`
+                ? `تم التعرف على هذه النخلة على أنها **${treeName}** بنسبة ثقة ${Math.round(confidence * 100)}%.\n[${sourceLabel}]\n\n${description}\n\nلا تتردد في سؤالي عن أي شيء يخص رعاية هذه النخلة!`
+                : `I've identified this as a **${treeClass}** palm tree with ${Math.round(confidence * 100)}% confidence.\n[${sourceLabel}]\n\n${description}\n\nFeel free to ask me anything about caring for this tree!`
               : isRTL
                 ? `${description}\n\nلم أتمكن من تحديد هذه الصورة كنوع معروف من النخيل. يمكنك سؤالي عن زراعة النخيل بشكل عام.`
                 : `${description}\n\nI wasn't able to identify this as a known palm tree variety. You can still ask me general questions about date palm cultivation.`,
