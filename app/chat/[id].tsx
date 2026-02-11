@@ -107,7 +107,7 @@ export default function ChatScreen() {
       return t.palmAssistant;
     }
     const name = isRTL ? (treeNamesAr[treeClass] || treeClass) : treeClass;
-    return `${name} ${t.palm}`;
+    return isRTL ? `${t.palm} ${name}` : `${name} ${t.palm}`;
   };
 
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function ChatScreen() {
           const isConvNeXt = source === "convnext_ensemble";
           const sourceLabel = isConvNeXt
             ? isRTL ? "نموذج ConvNeXt المحلي" : "ConvNeXt AI Model"
-            : isRTL ? "Gemini Vision" : "Gemini Vision";
+            : isRTL ? "الذكاء الاصطناعي جيميني" : "Gemini Vision";
           const welcomeMsg: Message = {
             id: generateUniqueId(),
             role: "assistant",
