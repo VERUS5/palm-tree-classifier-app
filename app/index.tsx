@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,17 +8,16 @@ import {
   Alert,
   ActivityIndicator,
   Platform,
-  Animated as RNAnimated,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/query-client";
+import { useI18n } from "@/lib/i18n";
 
 interface Session {
   id: number;
@@ -40,8 +39,15 @@ const treeIcons: Record<string, string> = {
   Shishi: "leaf",
 };
 
+const treeNamesAr: Record<string, string> = {
+  Khalas: "خلاص",
+  Razeez: "رزيز",
+  Shishi: "شيشي",
+};
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const { t, lang, isRTL, toggleLanguage } = useI18n();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isClassifying, setIsClassifying] = useState(false);
@@ -72,7 +78,7 @@ export default function HomeScreen() {
     if (source === "camera") {
       const perm = await ImagePicker.requestCameraPermissionsAsync();
       if (!perm.granted) {
-        Alert.alert("Permission needed", "Camera access is required to take photos.");
+        Alert.alert(t.permissionNeeded, t.cameraPermission);
         return;
       }
       result = await ImagePicker.launchCameraAsync({
@@ -83,7 +89,7 @@ export default function HomeScreen() {
     } else {
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        Alert.alert("Permission needed", "Photo library access is required.");
+        Alert.alert(t.permissionNeeded, t.galleryPermission);
         return;
       }
       result = await ImagePicker.launchImageLibraryAsync({
@@ -106,7 +112,7 @@ export default function HomeScreen() {
       const baseUrl = getApiUrl();
 
       if (!asset.base64) {
-        Alert.alert("Error", "Could not read the image data. Please try again.");
+        Alert.alert(t.error, t.imageError);
         return;
       }
 
@@ -121,16 +127,21 @@ export default function HomeScreen() {
         body: JSON.stringify({
           base64: asset.base64,
           mimeType: type,
+          lang,
         }),
       });
 
-      if (!classifyRes.ok) {
-        const errText = await classifyRes.text();
-        console.error("Classify response:", errText);
-        throw new Error("Classification failed");
-      }
+      if (!classifyRes.ok) throw new Error("Classification failed");
 
       const classification: ClassificationResult = await classifyRes.json();
+
+      const treeName = isRTL
+        ? treeNamesAr[classification.class] || classification.class
+        : classification.class;
+
+      const title = classification.isPalm
+        ? `${treeName} ${isRTL ? "نخلة" : "Palm"} (${Math.round(classification.confidence * 100)}%)`
+        : t.unidentified;
 
       const sessionRes = await fetch(`${baseUrl}api/sessions`, {
         method: "POST",
@@ -138,9 +149,7 @@ export default function HomeScreen() {
         body: JSON.stringify({
           treeClass: classification.class,
           imageData: null,
-          title: classification.isPalm
-            ? `${classification.class} Palm (${Math.round(classification.confidence * 100)}%)`
-            : "Unidentified Image",
+          title,
         }),
       });
 
@@ -161,7 +170,7 @@ export default function HomeScreen() {
       });
     } catch (error) {
       console.error("Classification error:", error);
-      Alert.alert("Error", "Failed to analyze the image. Please try again.");
+      Alert.alert(t.error, t.classifyError);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setIsClassifying(false);
@@ -184,16 +193,22 @@ export default function HomeScreen() {
       deleteSession(id);
       return;
     }
-    Alert.alert("Delete Session", "Are you sure you want to delete this chat?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => deleteSession(id) },
+    Alert.alert(t.deleteSession, t.deleteConfirm, [
+      { text: t.cancel, style: "cancel" },
+      { text: t.delete, style: "destructive", onPress: () => deleteSession(id) },
     ]);
+  };
+
+  const getTreeDisplayName = (treeClass: string | null) => {
+    if (!treeClass) return "";
+    if (isRTL) return treeNamesAr[treeClass] || treeClass;
+    return treeClass;
   };
 
   const renderSession = ({ item }: { item: Session }) => {
     const iconName = treeIcons[item.treeClass || ""] || "help-circle-outline";
     const date = new Date(item.createdAt);
-    const timeStr = date.toLocaleDateString(undefined, {
+    const timeStr = date.toLocaleDateString(isRTL ? "ar-SA" : undefined, {
       month: "short",
       day: "numeric",
       hour: "2-digit",
@@ -202,7 +217,7 @@ export default function HomeScreen() {
 
     return (
       <Pressable
-        style={({ pressed }) => [styles.sessionCard, pressed && styles.sessionCardPressed]}
+        style={({ pressed }) => [styles.sessionCard, pressed && styles.sessionCardPressed, isRTL && styles.rowReverse]}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           router.push({ pathname: "/chat/[id]", params: { id: item.id.toString(), treeClass: item.treeClass || "" } });
@@ -210,17 +225,13 @@ export default function HomeScreen() {
         onLongPress={() => confirmDelete(item.id)}
       >
         <View style={[styles.sessionIcon, { backgroundColor: item.treeClass ? Colors.light.accentLight + "40" : Colors.light.surfaceSecondary }]}>
-          <Ionicons
-            name={iconName as any}
-            size={22}
-            color={item.treeClass ? Colors.light.forest : Colors.light.textSecondary}
-          />
+          <Ionicons name={iconName as any} size={22} color={item.treeClass ? Colors.light.tint : Colors.light.textSecondary} />
         </View>
-        <View style={styles.sessionInfo}>
-          <Text style={styles.sessionTitle} numberOfLines={1}>{item.title}</Text>
-          <Text style={styles.sessionTime}>{timeStr}</Text>
+        <View style={[styles.sessionInfo, isRTL && { alignItems: "flex-end" }]}>
+          <Text style={[styles.sessionTitle, isRTL && styles.textRTL]} numberOfLines={1}>{item.title}</Text>
+          <Text style={[styles.sessionTime, isRTL && styles.textRTL]}>{timeStr}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={Colors.light.textSecondary} />
+        <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={18} color={Colors.light.textSecondary} />
       </Pressable>
     );
   };
@@ -229,34 +240,41 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>Palm Assistant</Text>
-          <Text style={styles.headerSubtitle}>Identify and learn about date palms</Text>
+      <View style={[styles.header, isRTL && styles.rowReverse]}>
+        <View style={isRTL ? { alignItems: "flex-end" } : undefined}>
+          <Text style={[styles.headerTitle, isRTL && styles.textRTL]}>{t.appName}</Text>
+          <Text style={[styles.headerSubtitle, isRTL && styles.textRTL]}>{t.subtitle}</Text>
         </View>
+        <Pressable
+          onPress={toggleLanguage}
+          style={({ pressed }) => [styles.langButton, pressed && { opacity: 0.7 }]}
+        >
+          <Ionicons name="language" size={18} color={Colors.light.tint} />
+          <Text style={styles.langButtonText}>{t.language}</Text>
+        </Pressable>
       </View>
 
       <LinearGradient
-        colors={[Colors.light.forest, Colors.light.tintLight]}
+        colors={[Colors.light.tint, Colors.light.tintLight]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.heroCard}
       >
-        <View style={styles.heroContent}>
+        <View style={[styles.heroContent, isRTL && styles.rowReverse]}>
           <MaterialCommunityIcons name="palm-tree" size={44} color={Colors.light.accentLight} />
-          <View style={styles.heroText}>
-            <Text style={styles.heroTitle}>Identify a Palm Tree</Text>
-            <Text style={styles.heroDescription}>Take a photo or choose from your gallery</Text>
+          <View style={[styles.heroText, isRTL && { alignItems: "flex-end" }]}>
+            <Text style={[styles.heroTitle, isRTL && styles.textRTL]}>{t.identifyTitle}</Text>
+            <Text style={[styles.heroDescription, isRTL && styles.textRTL]}>{t.identifyDesc}</Text>
           </View>
         </View>
-        <View style={styles.heroActions}>
+        <View style={[styles.heroActions, isRTL && styles.rowReverse]}>
           <Pressable
             style={({ pressed }) => [styles.heroButton, styles.cameraButton, pressed && { opacity: 0.85 }]}
             onPress={() => pickImage("camera")}
             disabled={isClassifying}
           >
-            <Ionicons name="camera" size={20} color={Colors.light.forest} />
-            <Text style={styles.heroButtonText}>Camera</Text>
+            <Ionicons name="camera" size={20} color={Colors.light.tint} />
+            <Text style={styles.heroButtonText}>{t.camera}</Text>
           </Pressable>
           <Pressable
             style={({ pressed }) => [styles.heroButton, styles.galleryButton, pressed && { opacity: 0.85 }]}
@@ -264,20 +282,20 @@ export default function HomeScreen() {
             disabled={isClassifying}
           >
             <Ionicons name="images" size={20} color={Colors.light.white} />
-            <Text style={[styles.heroButtonText, { color: Colors.light.white }]}>Gallery</Text>
+            <Text style={[styles.heroButtonText, { color: Colors.light.white }]}>{t.gallery}</Text>
           </Pressable>
         </View>
       </LinearGradient>
 
       {isClassifying && (
-        <View style={styles.classifyingBanner}>
-          <ActivityIndicator size="small" color={Colors.light.forest} />
-          <Text style={styles.classifyingText}>Analyzing your image...</Text>
+        <View style={[styles.classifyingBanner, isRTL && styles.rowReverse]}>
+          <ActivityIndicator size="small" color={Colors.light.tint} />
+          <Text style={styles.classifyingText}>{t.analyzing}</Text>
         </View>
       )}
 
-      <View style={styles.sessionsHeader}>
-        <Text style={styles.sessionsTitle}>Recent Analyses</Text>
+      <View style={[styles.sessionsHeader, isRTL && styles.rowReverse]}>
+        <Text style={[styles.sessionsTitle, isRTL && styles.textRTL]}>{t.recentAnalyses}</Text>
         {sessions.length > 0 && (
           <Text style={styles.sessionsCount}>{sessions.length}</Text>
         )}
@@ -290,8 +308,8 @@ export default function HomeScreen() {
       ) : sessions.length === 0 ? (
         <View style={styles.emptyState}>
           <MaterialCommunityIcons name="leaf" size={48} color={Colors.light.accent} />
-          <Text style={styles.emptyTitle}>No analyses yet</Text>
-          <Text style={styles.emptyText}>Take a photo of a palm tree to get started</Text>
+          <Text style={[styles.emptyTitle, isRTL && styles.textRTL]}>{t.noAnalyses}</Text>
+          <Text style={[styles.emptyText, isRTL && styles.textRTL]}>{t.noAnalysesDesc}</Text>
         </View>
       ) : (
         <FlatList
@@ -312,6 +330,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
   },
   header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 8,
@@ -322,10 +343,26 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "Inter_400Regular",
     color: Colors.light.textSecondary,
     marginTop: 2,
+  },
+  langButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: Colors.light.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+  },
+  langButtonText: {
+    fontSize: 13,
+    fontFamily: "Inter_600SemiBold",
+    color: Colors.light.tint,
   },
   heroCard: {
     marginHorizontal: 20,
@@ -377,7 +414,7 @@ const styles = StyleSheet.create({
   heroButtonText: {
     fontSize: 14,
     fontFamily: "Inter_600SemiBold",
-    color: Colors.light.forest,
+    color: Colors.light.tint,
   },
   classifyingBanner: {
     flexDirection: "row",
@@ -393,7 +430,7 @@ const styles = StyleSheet.create({
   classifyingText: {
     fontSize: 14,
     fontFamily: "Inter_500Medium",
-    color: Colors.light.forest,
+    color: Colors.light.tint,
   },
   sessionsHeader: {
     flexDirection: "row",
@@ -480,5 +517,12 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: "center",
     paddingHorizontal: 40,
+  },
+  rowReverse: {
+    flexDirection: "row-reverse",
+  },
+  textRTL: {
+    textAlign: "right",
+    writingDirection: "rtl",
   },
 });

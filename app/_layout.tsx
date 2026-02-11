@@ -8,6 +8,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
 import { StatusBar } from "expo-status-bar";
+import { I18nProvider } from "@/lib/i18n";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,8 +42,10 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView>
           <KeyboardProvider>
-            <StatusBar style="dark" />
-            <RootLayoutNav />
+            <I18nProvider>
+              <StatusBar style="dark" />
+              <RootLayoutNav />
+            </I18nProvider>
           </KeyboardProvider>
         </GestureHandlerRootView>
       </QueryClientProvider>
