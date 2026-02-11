@@ -5,6 +5,10 @@ import { db } from "./db";
 import { documents, chunks, chatSessions, chatMessages } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { seedKnowledgeBase } from "./seed";
+import * as fs from "node:fs";
+import * as path from "node:path";
+
+const MODELS_DIR = path.join(process.cwd(), "server", "models");
 
 const ai = new GoogleGenAI({
   apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
@@ -46,7 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/classify", async (req: Request, res: Response) => {
     try {
-      const { base64, mimeType: clientMimeType } = req.body;
+      const { base64, mimeType: clientMimeType, lang } = req.body;
       if (!base64) {
         return res.status(400).json({ error: "No image provided" });
       }
@@ -79,7 +83,8 @@ Respond ONLY with valid JSON in this exact format:
   "description": "Brief description of what you see and why you classified it this way"
 }
 
-If not a palm tree, set isPalm to false, class to "Unknown", and describe what you actually see.`,
+If not a palm tree, set isPalm to false, class to "Unknown", and describe what you actually see.
+${lang === "ar" ? "Write the description in Arabic." : "Write the description in English."}`,
               },
             ],
           },
@@ -151,7 +156,8 @@ If not a palm tree, set isPalm to false, class to "Unknown", and describe what y
   app.post("/api/sessions/:id/chat", async (req: Request, res: Response) => {
     try {
       const sessionId = parseInt(req.params.id);
-      const { content } = req.body;
+      const { content, lang } = req.body;
+      const isArabic = lang === "ar";
 
       const [session] = await db.select().from(chatSessions).where(eq(chatSessions.id, sessionId));
       if (!session) {
@@ -176,14 +182,38 @@ If not a palm tree, set isPalm to false, class to "Unknown", and describe what y
         parts: [{ text: m.content }],
       }));
 
-      const systemPrompt = `You are an expert agricultural advisor specializing in Date Palm trees in the Arabian Peninsula. You provide practical, actionable advice to farmers and enthusiasts.
+      const treeInfo = session.treeClass && session.treeClass !== "Unknown"
+        ? isArabic
+          ? `المستخدم تعرّف على نخلة من نوع ${session.treeClass} من الصورة.`
+          : `The user has identified a ${session.treeClass} palm tree from their image.`
+        : isArabic
+          ? "المستخدم يسأل عن النخيل بشكل عام."
+          : "The user is asking about palm trees in general.";
 
-${session.treeClass && session.treeClass !== "Unknown" ? `The user has identified a ${session.treeClass} palm tree from their image.` : "The user is asking about palm trees in general."}
+      const systemPrompt = isArabic
+        ? `أنت مستشار زراعي خبير متخصص في نخيل التمر في شبه الجزيرة العربية. تقدم نصائح عملية وقابلة للتطبيق للمزارعين والمهتمين.
+
+${treeInfo}
+
+${ragContext ? `سياق قاعدة المعرفة (استخدم هذه المعلومات لتقديم إجابات دقيقة):
+${ragContext}` : ""}
+
+الإرشادات:
+- أجب دائماً باللغة العربية
+- كن ودوداً ومهنياً ومختصراً
+- استخدم سياق قاعدة المعرفة عند توفره
+- إذا لم يغطي السياق السؤال، قدم نصيحة خبير عامة مع الإشارة إلى ذلك
+- قدم نصائح عملية وتوصيات قابلة للتطبيق
+- إذا سُئلت عن شيء غير متعلق بالزراعة/النخيل، أعد التوجيه بلطف`
+        : `You are an expert agricultural advisor specializing in Date Palm trees in the Arabian Peninsula. You provide practical, actionable advice to farmers and enthusiasts.
+
+${treeInfo}
 
 ${ragContext ? `KNOWLEDGE BASE CONTEXT (use this information to provide accurate answers):
 ${ragContext}` : ""}
 
 Guidelines:
+- Always respond in English
 - Be friendly, professional, and concise
 - Use the knowledge base context when available
 - If the context doesn't cover the question, provide general expert advice but mention you're using general knowledge
@@ -226,6 +256,28 @@ Guidelines:
       } else {
         res.status(500).json({ error: "Failed to process chat" });
       }
+    }
+  });
+
+  app.get("/api/models", async (_req: Request, res: Response) => {
+    try {
+      if (!fs.existsSync(MODELS_DIR)) {
+        fs.mkdirSync(MODELS_DIR, { recursive: true });
+      }
+      const files = fs.readdirSync(MODELS_DIR).filter(f => f.endsWith(".pth") || f.endsWith(".pt"));
+      const models = files.map(f => {
+        const stats = fs.statSync(path.join(MODELS_DIR, f));
+        return {
+          name: f,
+          size: stats.size,
+          sizeFormatted: `${(stats.size / (1024 * 1024)).toFixed(1)} MB`,
+          modified: stats.mtime.toISOString(),
+        };
+      });
+      res.json({ directory: MODELS_DIR, models });
+    } catch (error) {
+      console.error("Error listing models:", error);
+      res.status(500).json({ error: "Failed to list models" });
     }
   });
 
