@@ -104,38 +104,40 @@ export default function HomeScreen() {
 
     try {
       const baseUrl = getApiUrl();
-      const formData = new FormData();
+
+      if (!asset.base64) {
+        Alert.alert("Error", "Could not read the image data. Please try again.");
+        return;
+      }
 
       const uri = asset.uri;
       const filename = uri.split("/").pop() || "photo.jpg";
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : "image/jpeg";
 
-      formData.append("image", {
-        uri,
-        name: filename,
-        type,
-      } as any);
-
       const classifyRes = await fetch(`${baseUrl}api/classify`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          base64: asset.base64,
+          mimeType: type,
+        }),
       });
 
-      if (!classifyRes.ok) throw new Error("Classification failed");
+      if (!classifyRes.ok) {
+        const errText = await classifyRes.text();
+        console.error("Classify response:", errText);
+        throw new Error("Classification failed");
+      }
 
       const classification: ClassificationResult = await classifyRes.json();
-
-      const imageData = asset.base64
-        ? `data:${type};base64,${asset.base64}`
-        : null;
 
       const sessionRes = await fetch(`${baseUrl}api/sessions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           treeClass: classification.class,
-          imageData: imageData ? imageData.substring(0, 500) : null,
+          imageData: null,
           title: classification.isPalm
             ? `${classification.class} Palm (${Math.round(classification.confidence * 100)}%)`
             : "Unidentified Image",

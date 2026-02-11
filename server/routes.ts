@@ -3,9 +3,8 @@ import { createServer, type Server } from "node:http";
 import { GoogleGenAI } from "@google/genai";
 import { db } from "./db";
 import { documents, chunks, chatSessions, chatMessages } from "@shared/schema";
-import { eq, desc, ilike, or } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { seedKnowledgeBase } from "./seed";
-import multer from "multer";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
@@ -14,8 +13,6 @@ const ai = new GoogleGenAI({
     baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
   },
 });
-
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 function retrieveContext(allChunks: { topic: string; content: string }[], query: string): string {
   const queryLower = query.toLowerCase();
@@ -47,14 +44,15 @@ function retrieveContext(allChunks: { topic: string; content: string }[], query:
 export async function registerRoutes(app: Express): Promise<Server> {
   await seedKnowledgeBase();
 
-  app.post("/api/classify", upload.single("image"), async (req: Request, res: Response) => {
+  app.post("/api/classify", async (req: Request, res: Response) => {
     try {
-      if (!req.file) {
+      const { base64, mimeType: clientMimeType } = req.body;
+      if (!base64) {
         return res.status(400).json({ error: "No image provided" });
       }
 
-      const base64Image = req.file.buffer.toString("base64");
-      const mimeType = req.file.mimetype;
+      const base64Image = base64.includes(",") ? base64.split(",")[1] : base64;
+      const mimeType = clientMimeType || "image/jpeg";
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
