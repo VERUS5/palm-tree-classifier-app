@@ -9,6 +9,7 @@ import { queryClient } from "@/lib/query-client";
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
 import { StatusBar } from "expo-status-bar";
 import { I18nProvider } from "@/lib/i18n";
+import { ThemeProvider, useTheme } from "@/lib/theme";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,6 +20,11 @@ function RootLayoutNav() {
       <Stack.Screen name="chat/[id]" options={{ animation: "slide_from_right" }} />
     </Stack>
   );
+}
+
+function ThemedStatusBar() {
+  const { isDark } = useTheme();
+  return <StatusBar style={isDark ? "light" : "dark"} />;
 }
 
 export default function RootLayout() {
@@ -42,10 +48,12 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView>
           <KeyboardProvider>
-            <I18nProvider>
-              <StatusBar style="dark" />
-              <RootLayoutNav />
-            </I18nProvider>
+            <ThemeProvider>
+              <I18nProvider>
+                <ThemedStatusBar />
+                <RootLayoutNav />
+              </I18nProvider>
+            </ThemeProvider>
           </KeyboardProvider>
         </GestureHandlerRootView>
       </QueryClientProvider>

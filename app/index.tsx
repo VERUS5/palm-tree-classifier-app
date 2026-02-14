@@ -15,9 +15,9 @@ import { router, useFocusEffect } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/query-client";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 
 interface Session {
   id: number;
@@ -51,6 +51,7 @@ const treeNamesAr: Record<string, string> = {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { t, lang, isRTL, toggleLanguage } = useI18n();
+  const { colors, isDark, toggleTheme } = useTheme();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isClassifying, setIsClassifying] = useState(false);
@@ -170,6 +171,8 @@ export default function HomeScreen() {
           description: classification.description,
           isPalm: classification.isPalm.toString(),
           source: classification.source || "gemini_vision",
+          imageBase64: asset.base64,
+          imageMimeType: type,
         },
       });
     } catch (error) {
@@ -221,21 +224,21 @@ export default function HomeScreen() {
 
     return (
       <Pressable
-        style={({ pressed }) => [styles.sessionCard, pressed && styles.sessionCardPressed, isRTL && styles.rowReverse]}
+        style={({ pressed }) => [styles.sessionCard, { backgroundColor: colors.surface }, pressed && styles.sessionCardPressed, isRTL && styles.rowReverse]}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           router.push({ pathname: "/chat/[id]", params: { id: item.id.toString(), treeClass: item.treeClass || "" } });
         }}
         onLongPress={() => confirmDelete(item.id)}
       >
-        <View style={[styles.sessionIcon, { backgroundColor: item.treeClass ? Colors.light.accentLight + "40" : Colors.light.surfaceSecondary }]}>
-          <Ionicons name={iconName as any} size={22} color={item.treeClass ? Colors.light.tint : Colors.light.textSecondary} />
+        <View style={[styles.sessionIcon, { backgroundColor: item.treeClass ? colors.accentLight + "40" : colors.surfaceSecondary }]}>
+          <Ionicons name={iconName as any} size={22} color={item.treeClass ? colors.tint : colors.textSecondary} />
         </View>
         <View style={[styles.sessionInfo, isRTL && { alignItems: "flex-end" }]}>
-          <Text style={[styles.sessionTitle, isRTL && styles.textRTL]} numberOfLines={1}>{item.title}</Text>
-          <Text style={[styles.sessionTime, isRTL && styles.textRTL]}>{timeStr}</Text>
+          <Text style={[styles.sessionTitle, { color: colors.text }, isRTL && styles.textRTL]} numberOfLines={1}>{item.title}</Text>
+          <Text style={[styles.sessionTime, { color: colors.textSecondary }, isRTL && styles.textRTL]}>{timeStr}</Text>
         </View>
-        <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={18} color={Colors.light.textSecondary} />
+        <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={18} color={colors.textSecondary} />
       </Pressable>
     );
   };
@@ -243,77 +246,85 @@ export default function HomeScreen() {
   const webTopInset = Platform.OS === "web" ? 67 : 0;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + webTopInset }]}>
       <View style={[styles.header, isRTL && styles.rowReverse]}>
         <View style={isRTL ? { alignItems: "flex-end" } : undefined}>
-          <Text style={[styles.headerTitle, isRTL && styles.textRTL]}>{t.appName}</Text>
-          <Text style={[styles.headerSubtitle, isRTL && styles.textRTL]}>{t.subtitle}</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }, isRTL && styles.textRTL]}>{t.appName}</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }, isRTL && styles.textRTL]}>{t.subtitle}</Text>
         </View>
-        <Pressable
-          onPress={toggleLanguage}
-          style={({ pressed }) => [styles.langButton, pressed && { opacity: 0.7 }]}
-        >
-          <Ionicons name="language" size={18} color={Colors.light.tint} />
-          <Text style={styles.langButtonText}>{t.language}</Text>
-        </Pressable>
+        <View style={[styles.headerActions, isRTL && styles.rowReverse]}>
+          <Pressable
+            onPress={toggleTheme}
+            style={({ pressed }) => [styles.iconButton, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }]}
+          >
+            <Ionicons name={isDark ? "sunny" : "moon"} size={18} color={colors.tint} />
+          </Pressable>
+          <Pressable
+            onPress={toggleLanguage}
+            style={({ pressed }) => [styles.langButton, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }]}
+          >
+            <Ionicons name="language" size={18} color={colors.tint} />
+            <Text style={[styles.langButtonText, { color: colors.tint }]}>{t.language}</Text>
+          </Pressable>
+        </View>
       </View>
 
       <LinearGradient
-        colors={[Colors.light.tint, Colors.light.tintLight]}
+        colors={isDark ? [colors.tintLight, colors.tint] : [colors.tint, colors.tintLight]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.heroCard}
       >
         <View style={[styles.heroContent, isRTL && styles.rowReverse]}>
-          <MaterialCommunityIcons name="palm-tree" size={44} color={Colors.light.accentLight} />
+          <MaterialCommunityIcons name="palm-tree" size={44} color={colors.accentLight} />
           <View style={[styles.heroText, isRTL && { alignItems: "flex-end" }]}>
-            <Text style={[styles.heroTitle, isRTL && styles.textRTL]}>{t.identifyTitle}</Text>
-            <Text style={[styles.heroDescription, isRTL && styles.textRTL]}>{t.identifyDesc}</Text>
+            <Text style={[styles.heroTitle, { color: colors.white }]}>{t.identifyTitle}</Text>
+            <Text style={[styles.heroDescription, { color: colors.mint }, isRTL && styles.textRTL]}>{t.identifyDesc}</Text>
           </View>
         </View>
         <View style={[styles.heroActions, isRTL && styles.rowReverse]}>
           <Pressable
-            style={({ pressed }) => [styles.heroButton, styles.cameraButton, pressed && { opacity: 0.85 }]}
+            style={({ pressed }) => [styles.heroButton, styles.cameraButton, { backgroundColor: colors.white }, pressed && { opacity: 0.85 }]}
             onPress={() => pickImage("camera")}
             disabled={isClassifying}
           >
-            <Ionicons name="camera" size={20} color={Colors.light.tint} />
-            <Text style={styles.heroButtonText}>{t.camera}</Text>
+            <Ionicons name="camera" size={20} color={colors.tint} />
+            <Text style={[styles.heroButtonText, { color: colors.tint }]}>{t.camera}</Text>
           </Pressable>
           <Pressable
             style={({ pressed }) => [styles.heroButton, styles.galleryButton, pressed && { opacity: 0.85 }]}
             onPress={() => pickImage("gallery")}
             disabled={isClassifying}
           >
-            <Ionicons name="images" size={20} color={Colors.light.white} />
-            <Text style={[styles.heroButtonText, { color: Colors.light.white }]}>{t.gallery}</Text>
+            <Ionicons name="images" size={20} color={colors.white} />
+            <Text style={[styles.heroButtonText, { color: colors.white }]}>{t.gallery}</Text>
           </Pressable>
         </View>
       </LinearGradient>
 
       {isClassifying && (
-        <View style={[styles.classifyingBanner, isRTL && styles.rowReverse]}>
-          <ActivityIndicator size="small" color={Colors.light.tint} />
-          <Text style={styles.classifyingText}>{t.analyzing}</Text>
+        <View style={[styles.classifyingBanner, { backgroundColor: colors.accentLight + "30" }, isRTL && styles.rowReverse]}>
+          <ActivityIndicator size="small" color={colors.tint} />
+          <Text style={[styles.classifyingText, { color: colors.tint }]}>{t.analyzing}</Text>
         </View>
       )}
 
       <View style={[styles.sessionsHeader, isRTL && styles.rowReverse]}>
-        <Text style={[styles.sessionsTitle, isRTL && styles.textRTL]}>{t.recentAnalyses}</Text>
+        <Text style={[styles.sessionsTitle, { color: colors.text }, isRTL && styles.textRTL]}>{t.recentAnalyses}</Text>
         {sessions.length > 0 && (
-          <Text style={styles.sessionsCount}>{sessions.length}</Text>
+          <Text style={[styles.sessionsCount, { color: colors.textSecondary, backgroundColor: colors.surfaceSecondary }]}>{sessions.length}</Text>
         )}
       </View>
 
       {isLoading ? (
         <View style={styles.emptyState}>
-          <ActivityIndicator size="large" color={Colors.light.accent} />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       ) : sessions.length === 0 ? (
         <View style={styles.emptyState}>
-          <MaterialCommunityIcons name="leaf" size={48} color={Colors.light.accent} />
-          <Text style={[styles.emptyTitle, isRTL && styles.textRTL]}>{t.noAnalyses}</Text>
-          <Text style={[styles.emptyText, isRTL && styles.textRTL]}>{t.noAnalysesDesc}</Text>
+          <MaterialCommunityIcons name="leaf" size={48} color={colors.accent} />
+          <Text style={[styles.emptyTitle, { color: colors.text }, isRTL && styles.textRTL]}>{t.noAnalyses}</Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }, isRTL && styles.textRTL]}>{t.noAnalysesDesc}</Text>
         </View>
       ) : (
         <FlatList
@@ -331,7 +342,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   header: {
     flexDirection: "row",
@@ -344,29 +354,37 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontFamily: "Inter_700Bold",
-    color: Colors.light.text,
   },
   headerSubtitle: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.textSecondary,
     marginTop: 2,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
   },
   langButton: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: Colors.light.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.light.border,
   },
   langButtonText: {
     fontSize: 13,
     fontFamily: "Inter_600SemiBold",
-    color: Colors.light.tint,
   },
   heroCard: {
     marginHorizontal: 20,
@@ -385,12 +403,10 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 18,
     fontFamily: "Inter_700Bold",
-    color: Colors.light.white,
   },
   heroDescription: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.mint,
     marginTop: 4,
   },
   heroActions: {
@@ -407,9 +423,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 8,
   },
-  cameraButton: {
-    backgroundColor: Colors.light.white,
-  },
+  cameraButton: {},
   galleryButton: {
     backgroundColor: "rgba(255,255,255,0.2)",
     borderWidth: 1,
@@ -418,7 +432,6 @@ const styles = StyleSheet.create({
   heroButtonText: {
     fontSize: 14,
     fontFamily: "Inter_600SemiBold",
-    color: Colors.light.tint,
   },
   classifyingBanner: {
     flexDirection: "row",
@@ -428,13 +441,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 12,
     paddingVertical: 12,
-    backgroundColor: Colors.light.accentLight + "30",
     borderRadius: 12,
   },
   classifyingText: {
     fontSize: 14,
     fontFamily: "Inter_500Medium",
-    color: Colors.light.tint,
   },
   sessionsHeader: {
     flexDirection: "row",
@@ -447,17 +458,14 @@ const styles = StyleSheet.create({
   sessionsTitle: {
     fontSize: 18,
     fontFamily: "Inter_600SemiBold",
-    color: Colors.light.text,
   },
   sessionsCount: {
     fontSize: 13,
     fontFamily: "Inter_500Medium",
-    color: Colors.light.textSecondary,
-    backgroundColor: Colors.light.surfaceSecondary,
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 10,
-    overflow: "hidden",
+    overflow: "hidden" as const,
   },
   sessionsList: {
     paddingHorizontal: 20,
@@ -466,7 +474,6 @@ const styles = StyleSheet.create({
   sessionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.light.surface,
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
@@ -494,12 +501,10 @@ const styles = StyleSheet.create({
   sessionTitle: {
     fontSize: 15,
     fontFamily: "Inter_600SemiBold",
-    color: Colors.light.text,
   },
   sessionTime: {
     fontSize: 12,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.textSecondary,
     marginTop: 2,
   },
   emptyState: {
@@ -512,13 +517,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: "Inter_600SemiBold",
-    color: Colors.light.text,
     marginTop: 8,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.textSecondary,
     textAlign: "center",
     paddingHorizontal: 40,
   },

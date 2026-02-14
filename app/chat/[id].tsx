@@ -8,6 +8,7 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
@@ -16,14 +17,16 @@ import { router, useLocalSearchParams } from "expo-router";
 import { fetch } from "expo/fetch";
 import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
-import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/query-client";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
+import { type ThemeColors } from "@/constants/colors";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  image?: string;
 }
 
 let messageCounter = 0;
@@ -38,31 +41,38 @@ const treeNamesAr: Record<string, string> = {
   Shishi: "شيشي",
 };
 
-function TypingIndicator() {
+function TypingIndicator({ colors }: { colors: ThemeColors }) {
   return (
     <Animated.View entering={FadeIn.duration(300)} style={styles.typingContainer}>
-      <View style={styles.assistantBubble}>
+      <View style={[styles.assistantBubble, { backgroundColor: colors.assistantBubble }]}>
         <View style={styles.typingDots}>
-          <View style={[styles.dot, styles.dot1]} />
-          <View style={[styles.dot, styles.dot2]} />
-          <View style={[styles.dot, styles.dot3]} />
+          <View style={[styles.dot, styles.dot1, { backgroundColor: colors.textSecondary }]} />
+          <View style={[styles.dot, styles.dot2, { backgroundColor: colors.textSecondary }]} />
+          <View style={[styles.dot, styles.dot3, { backgroundColor: colors.textSecondary }]} />
         </View>
       </View>
     </Animated.View>
   );
 }
 
-function MessageBubble({ message, isRTL }: { message: Message; isRTL: boolean }) {
+function MessageBubble({ message, isRTL, colors }: { message: Message; isRTL: boolean; colors: ThemeColors }) {
   const isUser = message.role === "user";
   return (
     <View style={[styles.messageBubbleContainer, isUser ? styles.userContainer : styles.assistantContainer]}>
       {!isUser && (
-        <View style={styles.avatarContainer}>
-          <MaterialCommunityIcons name="palm-tree" size={16} color={Colors.light.forest} />
+        <View style={[styles.avatarContainer, { backgroundColor: colors.accentLight + "40" }]}>
+          <MaterialCommunityIcons name="palm-tree" size={16} color={colors.forest} />
         </View>
       )}
-      <View style={[isUser ? styles.userBubble : styles.assistantBubble, { maxWidth: "78%" }]}>
-        <Text style={[isUser ? styles.userText : styles.assistantText, isRTL && styles.textRTL]}>{message.content}</Text>
+      <View style={[isUser ? [styles.userBubble, { backgroundColor: colors.userBubble }] : [styles.assistantBubble, { backgroundColor: colors.assistantBubble }], { maxWidth: "78%" }]}>
+        {message.image && (
+          <Image
+            source={{ uri: message.image }}
+            style={styles.messageImage}
+            resizeMode="cover"
+          />
+        )}
+        <Text style={[isUser ? [styles.userText, { color: colors.userBubbleText }] : [styles.assistantText, { color: colors.assistantBubbleText }], isRTL && styles.textRTL]}>{message.content}</Text>
       </View>
     </View>
   );
@@ -71,6 +81,7 @@ function MessageBubble({ message, isRTL }: { message: Message; isRTL: boolean })
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const { t, lang, isRTL } = useI18n();
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{
     id: string;
     treeClass?: string;
@@ -78,6 +89,8 @@ export default function ChatScreen() {
     description?: string;
     isPalm?: string;
     source?: string;
+    imageBase64?: string;
+    imageMimeType?: string;
   }>();
 
   const sessionId = params.id;
@@ -86,6 +99,8 @@ export default function ChatScreen() {
   const description = params.description || "";
   const isPalm = params.isPalm !== "false";
   const source = params.source || "";
+  const imageBase64 = params.imageBase64 || "";
+  const imageMimeType = params.imageMimeType || "image/jpeg";
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -130,6 +145,7 @@ export default function ChatScreen() {
           const sourceLabel = isConvNeXt
             ? isRTL ? "نموذج ConvNeXt المحلي" : "ConvNeXt AI Model"
             : isRTL ? "الذكاء الاصطناعي جيميني" : "Gemini Vision";
+          const imageUri = imageBase64 ? `data:${imageMimeType};base64,${imageBase64}` : undefined;
           const welcomeMsg: Message = {
             id: generateUniqueId(),
             role: "assistant",
@@ -140,6 +156,7 @@ export default function ChatScreen() {
               : isRTL
                 ? `${description}\n\nلم أتمكن من تحديد هذه الصورة كنوع معروف من النخيل. يمكنك سؤالي عن زراعة النخيل بشكل عام.`
                 : `${description}\n\nI wasn't able to identify this as a known palm tree variety. You can still ask me general questions about date palm cultivation.`,
+            image: imageUri,
           };
           setMessages([welcomeMsg]);
         }
@@ -240,19 +257,19 @@ export default function ChatScreen() {
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
-      <View style={[styles.navBar, isRTL && styles.rowReverse]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + webTopInset }]}>
+      <View style={[styles.navBar, { borderBottomColor: colors.border, backgroundColor: colors.surface }, isRTL && styles.rowReverse]}>
         <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={12}>
-          <Ionicons name={isRTL ? "chevron-forward" : "chevron-back"} size={24} color={Colors.light.forest} />
+          <Ionicons name={isRTL ? "chevron-forward" : "chevron-back"} size={24} color={colors.forest} />
         </Pressable>
         <View style={styles.navCenter}>
-          <Text style={[styles.navTitle, isRTL && styles.textRTL]} numberOfLines={1}>
+          <Text style={[styles.navTitle, { color: colors.text }, isRTL && styles.textRTL]} numberOfLines={1}>
             {getTreeDisplayName()}
           </Text>
           {treeClass && treeClass !== "Unknown" && (
-            <View style={[styles.navBadge, isRTL && styles.rowReverse]}>
-              <MaterialCommunityIcons name="palm-tree" size={12} color={Colors.light.forest} />
-              <Text style={styles.navBadgeText}>{t.identified}</Text>
+            <View style={[styles.navBadge, { backgroundColor: colors.accentLight + "40" }, isRTL && styles.rowReverse]}>
+              <MaterialCommunityIcons name="palm-tree" size={12} color={colors.forest} />
+              <Text style={[styles.navBadgeText, { color: colors.forest }]}>{t.identified}</Text>
             </View>
           )}
         </View>
@@ -262,22 +279,22 @@ export default function ChatScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={0}>
         {isLoadingHistory ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.light.accent} />
+            <ActivityIndicator size="large" color={colors.accent} />
           </View>
         ) : messages.length === 0 ? (
           <View style={styles.welcomeContainer}>
-            <MaterialCommunityIcons name="palm-tree" size={56} color={Colors.light.accent} />
-            <Text style={[styles.welcomeTitle, isRTL && styles.textRTL]}>{t.askAnything}</Text>
-            <Text style={[styles.welcomeText, isRTL && styles.textRTL]}>{t.askAnythingDesc}</Text>
+            <MaterialCommunityIcons name="palm-tree" size={56} color={colors.accent} />
+            <Text style={[styles.welcomeTitle, { color: colors.text }, isRTL && styles.textRTL]}>{t.askAnything}</Text>
+            <Text style={[styles.welcomeText, { color: colors.textSecondary }, isRTL && styles.textRTL]}>{t.askAnythingDesc}</Text>
             <View style={styles.suggestedContainer}>
               {suggestedQuestions.map((q, i) => (
                 <Pressable
                   key={i}
-                  style={({ pressed }) => [styles.suggestedButton, pressed && { opacity: 0.7 }, isRTL && styles.rowReverse]}
+                  style={({ pressed }) => [styles.suggestedButton, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }, isRTL && styles.rowReverse]}
                   onPress={() => handleSend(q.text)}
                 >
-                  <Ionicons name={q.icon} size={16} color={Colors.light.forest} />
-                  <Text style={[styles.suggestedText, isRTL && styles.textRTL]}>{q.text}</Text>
+                  <Ionicons name={q.icon} size={16} color={colors.forest} />
+                  <Text style={[styles.suggestedText, { color: colors.text }, isRTL && styles.textRTL]}>{q.text}</Text>
                 </Pressable>
               ))}
             </View>
@@ -286,9 +303,9 @@ export default function ChatScreen() {
           <FlatList
             data={reversedMessages}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <MessageBubble message={item} isRTL={isRTL} />}
+            renderItem={({ item }) => <MessageBubble message={item} isRTL={isRTL} colors={colors} />}
             inverted={messages.length > 0}
-            ListHeaderComponent={showTyping ? <TypingIndicator /> : null}
+            ListHeaderComponent={showTyping ? <TypingIndicator colors={colors} /> : null}
             contentContainerStyle={styles.messagesList}
             keyboardDismissMode="interactive"
             keyboardShouldPersistTaps="handled"
@@ -296,15 +313,15 @@ export default function ChatScreen() {
           />
         )}
 
-        <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, webBottomInset) + 8 }]}>
-          <View style={[styles.inputWrapper, isRTL && styles.rowReverse]}>
+        <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.border }, { paddingBottom: Math.max(insets.bottom, webBottomInset) + 8 }]}>
+          <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }, isRTL && styles.rowReverse]}>
             <TextInput
               ref={inputRef}
-              style={[styles.input, isRTL && styles.textRTL]}
+              style={[styles.input, { color: colors.text }, isRTL && styles.textRTL]}
               value={inputText}
               onChangeText={setInputText}
               placeholder={t.askPlaceholder}
-              placeholderTextColor={Colors.light.placeholder}
+              placeholderTextColor={colors.placeholder}
               multiline
               maxLength={2000}
               blurOnSubmit={false}
@@ -313,7 +330,7 @@ export default function ChatScreen() {
               textAlign={isRTL ? "right" : "left"}
             />
             <Pressable
-              style={[styles.sendButton, (!inputText.trim() || isStreaming) && styles.sendButtonDisabled]}
+              style={[styles.sendButton, { backgroundColor: colors.forest }, (!inputText.trim() || isStreaming) && { backgroundColor: colors.surfaceSecondary }]}
               onPress={() => {
                 handleSend();
                 inputRef.current?.focus();
@@ -323,7 +340,7 @@ export default function ChatScreen() {
               <Ionicons
                 name="arrow-up"
                 size={18}
-                color={inputText.trim() && !isStreaming ? Colors.light.white : Colors.light.placeholder}
+                color={inputText.trim() && !isStreaming ? colors.white : colors.placeholder}
               />
             </Pressable>
           </View>
@@ -336,7 +353,6 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   navBar: {
     flexDirection: "row",
@@ -344,8 +360,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.surface,
   },
   backButton: {
     width: 36,
@@ -360,14 +374,12 @@ const styles = StyleSheet.create({
   navTitle: {
     fontSize: 16,
     fontFamily: "Inter_600SemiBold",
-    color: Colors.light.text,
   },
   navBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
     marginTop: 2,
-    backgroundColor: Colors.light.accentLight + "40",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -375,7 +387,6 @@ const styles = StyleSheet.create({
   navBadgeText: {
     fontSize: 11,
     fontFamily: "Inter_500Medium",
-    color: Colors.light.forest,
   },
   loadingContainer: {
     flex: 1,
@@ -392,13 +403,11 @@ const styles = StyleSheet.create({
   welcomeTitle: {
     fontSize: 20,
     fontFamily: "Inter_700Bold",
-    color: Colors.light.text,
     marginTop: 12,
   },
   welcomeText: {
     fontSize: 14,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.textSecondary,
     textAlign: "center",
     lineHeight: 20,
   },
@@ -411,17 +420,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: Colors.light.surface,
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: Colors.light.border,
   },
   suggestedText: {
     fontSize: 14,
     fontFamily: "Inter_500Medium",
-    color: Colors.light.text,
   },
   messagesList: {
     paddingHorizontal: 16,
@@ -444,13 +450,11 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.light.accentLight + "40",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 2,
   },
   userBubble: {
-    backgroundColor: Colors.light.userBubble,
     borderRadius: 18,
     borderBottomRightRadius: 4,
     paddingHorizontal: 16,
@@ -458,7 +462,6 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
   },
   assistantBubble: {
-    backgroundColor: Colors.light.assistantBubble,
     borderRadius: 18,
     borderBottomLeftRadius: 4,
     paddingHorizontal: 16,
@@ -472,14 +475,18 @@ const styles = StyleSheet.create({
   userText: {
     fontSize: 15,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.userBubbleText,
     lineHeight: 21,
   },
   assistantText: {
     fontSize: 15,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.assistantBubbleText,
     lineHeight: 21,
+  },
+  messageImage: {
+    width: 240,
+    height: 180,
+    borderRadius: 12,
+    marginBottom: 8,
   },
   typingContainer: {
     flexDirection: "row",
@@ -496,7 +503,6 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 3.5,
-    backgroundColor: Colors.light.textSecondary,
     opacity: 0.5,
   },
   dot1: { opacity: 0.3 },
@@ -505,17 +511,13 @@ const styles = StyleSheet.create({
   inputContainer: {
     paddingHorizontal: 16,
     paddingTop: 8,
-    backgroundColor: Colors.light.surface,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "flex-end",
-    backgroundColor: Colors.light.inputBackground,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: Colors.light.border,
     paddingLeft: 16,
     paddingRight: 6,
     paddingVertical: 4,
@@ -525,7 +527,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontFamily: "Inter_400Regular",
-    color: Colors.light.text,
     maxHeight: 100,
     paddingVertical: 8,
   },
@@ -533,13 +534,9 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.light.forest,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 2,
-  },
-  sendButtonDisabled: {
-    backgroundColor: Colors.light.surfaceSecondary,
   },
   rowReverse: {
     flexDirection: "row-reverse",

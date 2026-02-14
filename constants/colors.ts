@@ -16,9 +16,15 @@ const palette = {
   gray900: "#1C1C1E",
   error: "#FF3B30",
   success: "#34C759",
+  darkBg: "#0D1B12",
+  darkSurface: "#162419",
+  darkSurfaceSecondary: "#1E2E23",
+  darkBorder: "#2A3D30",
 };
 
-export default {
+export type ThemeColors = typeof Colors.light;
+
+const Colors = {
   light: {
     text: palette.black,
     textSecondary: palette.gray500,
@@ -36,6 +42,9 @@ export default {
     tabIconSelected: palette.forest,
     error: palette.error,
     success: palette.success,
+    forest: palette.forest,
+    white: palette.white,
+    mint: palette.mint,
     userBubble: palette.forest,
     userBubbleText: palette.white,
     assistantBubble: palette.white,
@@ -43,4 +52,33 @@ export default {
     inputBackground: palette.white,
     placeholder: palette.gray300,
   },
+  dark: {
+    text: palette.white,
+    textSecondary: palette.gray500,
+    background: palette.darkBg,
+    surface: palette.darkSurface,
+    surfaceSecondary: palette.darkSurfaceSecondary,
+    tint: palette.sage,
+    tintLight: palette.forestLight,
+    accent: palette.sage,
+    accentLight: palette.mint,
+    sand: palette.sandDark,
+    sandDark: palette.sand,
+    border: palette.darkBorder,
+    tabIconDefault: palette.gray500,
+    tabIconSelected: palette.sage,
+    error: palette.error,
+    success: palette.success,
+    forest: palette.forest,
+    white: palette.white,
+    mint: palette.mint,
+    userBubble: palette.forestLight,
+    userBubbleText: palette.white,
+    assistantBubble: palette.darkSurfaceSecondary,
+    assistantBubbleText: palette.white,
+    inputBackground: palette.darkSurface,
+    placeholder: palette.gray700,
+  },
 };
+
+export default Colors;

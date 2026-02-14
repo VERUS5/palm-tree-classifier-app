@@ -44,6 +44,8 @@ const strings = {
     language: "English",
     models: "النماذج",
     knowledgeBase: "قاعدة المعرفة",
+    darkMode: "الوضع الداكن",
+    lightMode: "الوضع الفاتح",
   },
   en: {
     appName: "Palm Classifier",
@@ -82,6 +84,8 @@ const strings = {
     language: "العربية",
     models: "Models",
     knowledgeBase: "Knowledge Base",
+    darkMode: "Dark Mode",
+    lightMode: "Light Mode",
   },
 };
 
