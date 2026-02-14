@@ -110,12 +110,22 @@ export default function ChatScreen() {
   const inputRef = useRef<TextInput>(null);
   const initializedRef = useRef(false);
 
-  const suggestedQuestions = [
-    { icon: "water-outline" as const, text: t.suggestedWater },
-    { icon: "calendar-outline" as const, text: t.suggestedHarvest },
-    { icon: "bug-outline" as const, text: t.suggestedPests },
-    { icon: "nutrition-outline" as const, text: t.suggestedFertilizer },
-  ];
+  const suggestedQuestions = isPalm
+    ? [
+        { icon: "water-outline" as const, text: t.suggestedWater },
+        { icon: "calendar-outline" as const, text: t.suggestedHarvest },
+        { icon: "bug-outline" as const, text: t.suggestedPests },
+        { icon: "nutrition-outline" as const, text: t.suggestedFertilizer },
+      ]
+    : [
+        { icon: "leaf-outline" as const, text: t.suggestedCare },
+        { icon: "water-outline" as const, text: t.suggestedWater },
+        { icon: "earth-outline" as const, text: t.suggestedSoil },
+        { icon: "sunny-outline" as const, text: t.suggestedClimate },
+        { icon: "list-outline" as const, text: t.suggestedVarieties },
+      ];
+
+  const showSuggestedInChat = messages.length <= 1 && !isStreaming;
 
   const getTreeDisplayName = () => {
     if (!treeClass || treeClass === "Unknown") {
@@ -312,6 +322,23 @@ export default function ChatScreen() {
             renderItem={({ item }) => <MessageBubble message={item} isRTL={isRTL} colors={colors} />}
             inverted={messages.length > 0}
             ListHeaderComponent={showTyping ? <TypingIndicator colors={colors} /> : null}
+            ListFooterComponent={showSuggestedInChat ? (
+              <View style={styles.inlineSuggestedContainer}>
+                <Text style={[styles.inlineSuggestedLabel, { color: colors.textSecondary }, isRTL && styles.textRTL]}>{t.trySuggestedBelow}</Text>
+                <View style={styles.inlineSuggestedButtons}>
+                  {suggestedQuestions.map((q, i) => (
+                    <Pressable
+                      key={i}
+                      style={({ pressed }) => [styles.inlineSuggestedButton, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }, isRTL && styles.rowReverse]}
+                      onPress={() => handleSend(q.text)}
+                    >
+                      <Ionicons name={q.icon} size={14} color={colors.forest} />
+                      <Text style={[styles.inlineSuggestedText, { color: colors.text }, isRTL && styles.textRTL]}>{q.text}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            ) : null}
             contentContainerStyle={styles.messagesList}
             keyboardDismissMode="interactive"
             keyboardShouldPersistTaps="handled"
@@ -543,6 +570,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 2,
+  },
+  inlineSuggestedContainer: {
+    paddingHorizontal: 8,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  inlineSuggestedLabel: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    marginBottom: 10,
+    paddingHorizontal: 4,
+  },
+  inlineSuggestedButtons: {
+    gap: 8,
+  },
+  inlineSuggestedButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  inlineSuggestedText: {
+    fontSize: 13,
+    fontFamily: "Inter_500Medium",
+    flex: 1,
   },
   rowReverse: {
     flexDirection: "row-reverse",

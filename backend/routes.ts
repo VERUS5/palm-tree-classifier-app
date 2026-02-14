@@ -81,57 +81,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.warn("Inference server unavailable, falling back to Gemini:", (err as Error).message);
       }
 
-      if (modelResult && modelResult.confidence > 0.3) {
-        let description = "";
-        try {
-          const descResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  {
-                    inlineData: { data: base64Image, mimeType },
-                  },
-                  {
-                    text: `This image has been classified by a ConvNeXt deep learning model as "${modelResult.class}" date palm variety with ${(modelResult.confidence * 100).toFixed(1)}% confidence.
+      if (modelResult) {
+        if (modelResult.confidence >= 0.96) {
+          let description = "";
+          try {
+            const descResponse = await ai.models.generateContent({
+              model: "gemini-2.5-flash",
+              contents: [
+                {
+                  role: "user",
+                  parts: [
+                    {
+                      inlineData: { data: base64Image, mimeType },
+                    },
+                    {
+                      text: `This image has been classified by a ConvNeXt deep learning model as "${modelResult.class}" date palm variety with ${(modelResult.confidence * 100).toFixed(1)}% confidence.
 
 Write a brief expert description (2-3 sentences) about what you see in the image and the characteristics of the "${modelResult.class}" variety. Include distinguishing features visible in the image.
 ${lang === "ar" ? "Write entirely in Arabic." : "Write entirely in English."}`,
-                  },
-                ],
+                    },
+                  ],
+                },
+              ],
+            });
+            description = descResponse.text || "";
+          } catch {
+            const descriptions: Record<string, Record<string, string>> = {
+              Khalas: {
+                en: "Khalas dates are golden-amber colored with a rich caramel flavor. They are one of the most prized varieties in the Gulf region.",
+                ar: "تمور الخلاص ذات لون ذهبي كهرماني بنكهة كراميل غنية. وهي من أكثر الأصناف المرغوبة في منطقة الخليج.",
               },
-            ],
-          });
-          description = descResponse.text || "";
-        } catch {
-          const descriptions: Record<string, Record<string, string>> = {
-            Khalas: {
-              en: "Khalas dates are golden-amber colored with a rich caramel flavor. They are one of the most prized varieties in the Gulf region.",
-              ar: "تمور الخلاص ذات لون ذهبي كهرماني بنكهة كراميل غنية. وهي من أكثر الأصناف المرغوبة في منطقة الخليج.",
-            },
-            Razeez: {
-              en: "Razeez dates are dark brown and elongated with a sweet, mild flavor. They are commonly grown in Saudi Arabia.",
-              ar: "تمور الرزيز بنية داكنة ومستطيلة ذات نكهة حلوة معتدلة. تُزرع بشكل شائع في المملكة العربية السعودية.",
-            },
-            Shishi: {
-              en: "Shishi dates are small to medium-sized with a dark color and sweet taste. They are popular in the Eastern Province of Saudi Arabia.",
-              ar: "تمور الشيشي صغيرة إلى متوسطة الحجم ذات لون داكن وطعم حلو. تحظى بشعبية في المنطقة الشرقية بالمملكة العربية السعودية.",
-            },
-          };
-          const langKey = lang === "ar" ? "ar" : "en";
-          description = descriptions[modelResult.class]?.[langKey] || "";
-        }
+              Razeez: {
+                en: "Razeez dates are dark brown and elongated with a sweet, mild flavor. They are commonly grown in Saudi Arabia.",
+                ar: "تمور الرزيز بنية داكنة ومستطيلة ذات نكهة حلوة معتدلة. تُزرع بشكل شائع في المملكة العربية السعودية.",
+              },
+              Shishi: {
+                en: "Shishi dates are small to medium-sized with a dark color and sweet taste. They are popular in the Eastern Province of Saudi Arabia.",
+                ar: "تمور الشيشي صغيرة إلى متوسطة الحجم ذات لون داكن وطعم حلو. تحظى بشعبية في المنطقة الشرقية بالمملكة العربية السعودية.",
+              },
+            };
+            const langKey = lang === "ar" ? "ar" : "en";
+            description = descriptions[modelResult.class]?.[langKey] || "";
+          }
 
-        return res.json({
-          isPalm: true,
-          class: modelResult.class,
-          confidence: modelResult.confidence,
-          probabilities: modelResult.probabilities,
-          folds_used: modelResult.folds_used,
-          source: "convnext_ensemble",
-          description,
-        });
+          return res.json({
+            isPalm: true,
+            class: modelResult.class,
+            confidence: modelResult.confidence,
+            probabilities: modelResult.probabilities,
+            folds_used: modelResult.folds_used,
+            source: "convnext_ensemble",
+            description,
+          });
+        } else {
+          const lowConfDesc = lang === "ar"
+            ? `تم تحليل الصورة بواسطة نموذج ConvNeXt ولكن نسبة الثقة ${(modelResult.confidence * 100).toFixed(1)}% أقل من الحد المطلوب (96%). أقرب تصنيف محتمل: ${modelResult.class}. يرجى التقاط صورة أوضح أو تجربة زاوية مختلفة للحصول على نتيجة أدق.`
+            : `The image was analyzed by the ConvNeXt model but confidence is ${(modelResult.confidence * 100).toFixed(1)}%, below the required 96% threshold. Closest match: ${modelResult.class}. Try taking a clearer photo or a different angle for a more accurate result.`;
+
+          return res.json({
+            isPalm: false,
+            class: "Unknown",
+            confidence: modelResult.confidence,
+            probabilities: modelResult.probabilities,
+            folds_used: modelResult.folds_used,
+            source: "convnext_ensemble",
+            description: lowConfDesc,
+          });
+        }
       }
 
       const response = await ai.models.generateContent({

@@ -48,6 +48,13 @@ const strings = {
     lightMode: "الوضع الفاتح",
     clearAll: "مسح الكل",
     clearAllConfirm: "هل أنت متأكد من حذف جميع التحليلات؟",
+    unknownType: "نوع غير معروف",
+    lowConfidence: "لم أتمكن من تحديد نوع النخلة بثقة كافية.",
+    suggestedSoil: "ما نوع التربة المناسبة؟",
+    suggestedCare: "كيف أعتني بالنخلة؟",
+    suggestedVarieties: "ما أنواع النخيل الشائعة؟",
+    suggestedClimate: "ما المناخ المناسب للنخيل؟",
+    trySuggestedBelow: "يمكنك طرح أحد الأسئلة أدناه للحصول على معلومات عامة عن النخيل:",
   },
   en: {
     appName: "Palm Classifier",
@@ -90,6 +97,13 @@ const strings = {
     lightMode: "Light Mode",
     clearAll: "Clear All",
     clearAllConfirm: "Are you sure you want to delete all analyses?",
+    unknownType: "Unknown Type",
+    lowConfidence: "I couldn't identify the palm tree variety with enough confidence.",
+    suggestedSoil: "What soil is best for palms?",
+    suggestedCare: "How do I care for a palm tree?",
+    suggestedVarieties: "What are common palm varieties?",
+    suggestedClimate: "What climate suits palm trees?",
+    trySuggestedBelow: "You can try one of the questions below to learn more about palm trees:",
   },
 };
 
