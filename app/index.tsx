@@ -37,9 +37,9 @@ interface ClassificationResult {
 }
 
 const treeIcons: Record<string, string> = {
-  Khalas: "tree",
-  Razeez: "tree-outline",
-  Shishi: "leaf",
+  Khalas: "leaf",
+  Razeez: "flower-outline",
+  Shishi: "nutrition",
 };
 
 const treeNamesAr: Record<string, string> = {
