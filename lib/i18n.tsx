@@ -46,6 +46,8 @@ const strings = {
     knowledgeBase: "قاعدة المعرفة",
     darkMode: "الوضع الداكن",
     lightMode: "الوضع الفاتح",
+    clearAll: "مسح الكل",
+    clearAllConfirm: "هل أنت متأكد من حذف جميع التحليلات؟",
   },
   en: {
     appName: "Palm Classifier",
@@ -86,6 +88,8 @@ const strings = {
     knowledgeBase: "Knowledge Base",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
+    clearAll: "Clear All",
+    clearAllConfirm: "Are you sure you want to delete all analyses?",
   },
 };
 

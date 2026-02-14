@@ -206,6 +206,30 @@ export default function HomeScreen() {
     ]);
   };
 
+  const clearAllSessions = async () => {
+    try {
+      const baseUrl = getApiUrl();
+      for (const s of sessions) {
+        await fetch(`${baseUrl}api/sessions/${s.id}`, { method: "DELETE" });
+      }
+      setSessions([]);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (e) {
+      console.error("Failed to clear sessions:", e);
+    }
+  };
+
+  const confirmClearAll = () => {
+    if (Platform.OS === "web") {
+      clearAllSessions();
+      return;
+    }
+    Alert.alert(t.clearAll, t.clearAllConfirm, [
+      { text: t.cancel, style: "cancel" },
+      { text: t.clearAll, style: "destructive", onPress: clearAllSessions },
+    ]);
+  };
+
   const getTreeDisplayName = (treeClass: string | null) => {
     if (!treeClass) return "";
     if (isRTL) return treeNamesAr[treeClass] || treeClass;
@@ -248,9 +272,9 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + webTopInset }]}>
       <View style={[styles.header, isRTL && styles.rowReverse]}>
-        <View style={isRTL ? { alignItems: "flex-end" } : undefined}>
-          <Text style={[styles.headerTitle, { color: colors.text }, isRTL && styles.textRTL]}>{t.appName}</Text>
-          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }, isRTL && styles.textRTL]}>{t.subtitle}</Text>
+        <View style={[styles.headerTitleWrap, isRTL ? { alignItems: "flex-end" } : undefined]}>
+          <Text style={[styles.headerTitle, { color: colors.text }, isRTL && styles.textRTL]} numberOfLines={1}>{t.appName}</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }, isRTL && styles.textRTL]} numberOfLines={1}>{t.subtitle}</Text>
         </View>
         <View style={[styles.headerActions, isRTL && styles.rowReverse]}>
           <Pressable
@@ -312,7 +336,10 @@ export default function HomeScreen() {
       <View style={[styles.sessionsHeader, isRTL && styles.rowReverse]}>
         <Text style={[styles.sessionsTitle, { color: colors.text }, isRTL && styles.textRTL]}>{t.recentAnalyses}</Text>
         {sessions.length > 0 && (
-          <Text style={[styles.sessionsCount, { color: colors.textSecondary, backgroundColor: colors.surfaceSecondary }]}>{sessions.length}</Text>
+          <Pressable onPress={confirmClearAll} style={({ pressed }) => [styles.clearAllButton, { backgroundColor: colors.error + "15" }, pressed && { opacity: 0.7 }]}>
+            <Ionicons name="trash-outline" size={14} color={colors.error} />
+            <Text style={[styles.clearAllText, { color: colors.error }]}>{t.clearAll}</Text>
+          </Pressable>
         )}
       </View>
 
@@ -350,6 +377,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 8,
+  },
+  headerTitleWrap: {
+    flex: 1,
+    marginRight: 8,
   },
   headerTitle: {
     fontSize: 28,
@@ -459,13 +490,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Inter_600SemiBold",
   },
-  sessionsCount: {
-    fontSize: 13,
-    fontFamily: "Inter_500Medium",
+  clearAllButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
     paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10,
-    overflow: "hidden" as const,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  clearAllText: {
+    fontSize: 12,
+    fontFamily: "Inter_500Medium",
   },
   sessionsList: {
     paddingHorizontal: 20,

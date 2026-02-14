@@ -227,6 +227,18 @@ ${lang === "ar" ? "Write the description in Arabic." : "Write the description in
     }
   });
 
+  app.post("/api/sessions/:id/messages", async (req: Request, res: Response) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const { role, content } = req.body;
+      const [msg] = await db.insert(chatMessages).values({ sessionId, role, content }).returning();
+      res.status(201).json(msg);
+    } catch (error) {
+      console.error("Error saving message:", error);
+      res.status(500).json({ error: "Failed to save message" });
+    }
+  });
+
   app.post("/api/sessions/:id/chat", async (req: Request, res: Response) => {
     try {
       const sessionId = parseInt(req.params.id);

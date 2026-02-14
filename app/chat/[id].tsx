@@ -146,19 +146,25 @@ export default function ChatScreen() {
             ? isRTL ? "نموذج ConvNeXt المحلي" : "ConvNeXt AI Model"
             : isRTL ? "الذكاء الاصطناعي جيميني" : "Gemini Vision";
           const imageUri = imageBase64 ? `data:${imageMimeType};base64,${imageBase64}` : undefined;
+          const welcomeContent = isPalm
+            ? isRTL
+              ? `تم التعرف على هذه النخلة على أنها **${treeName}** بنسبة ثقة ${Math.round(confidence * 100)}%.\n[${sourceLabel}]\n\n${description}\n\nلا تتردد في سؤالي عن أي شيء يخص رعاية هذه النخلة!`
+              : `I've identified this as a **${treeClass}** palm tree with ${Math.round(confidence * 100)}% confidence.\n[${sourceLabel}]\n\n${description}\n\nFeel free to ask me anything about caring for this tree!`
+            : isRTL
+              ? `${description}\n\nلم أتمكن من تحديد هذه الصورة كنوع معروف من النخيل. يمكنك سؤالي عن زراعة النخيل بشكل عام.`
+              : `${description}\n\nI wasn't able to identify this as a known palm tree variety. You can still ask me general questions about date palm cultivation.`;
           const welcomeMsg: Message = {
             id: generateUniqueId(),
             role: "assistant",
-            content: isPalm
-              ? isRTL
-                ? `تم التعرف على هذه النخلة على أنها **${treeName}** بنسبة ثقة ${Math.round(confidence * 100)}%.\n[${sourceLabel}]\n\n${description}\n\nلا تتردد في سؤالي عن أي شيء يخص رعاية هذه النخلة!`
-                : `I've identified this as a **${treeClass}** palm tree with ${Math.round(confidence * 100)}% confidence.\n[${sourceLabel}]\n\n${description}\n\nFeel free to ask me anything about caring for this tree!`
-              : isRTL
-                ? `${description}\n\nلم أتمكن من تحديد هذه الصورة كنوع معروف من النخيل. يمكنك سؤالي عن زراعة النخيل بشكل عام.`
-                : `${description}\n\nI wasn't able to identify this as a known palm tree variety. You can still ask me general questions about date palm cultivation.`,
+            content: welcomeContent,
             image: imageUri,
           };
           setMessages([welcomeMsg]);
+          globalThis.fetch(`${baseUrl}api/sessions/${sessionId}/messages`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ role: "assistant", content: welcomeContent }),
+          }).catch(() => {});
         }
       }
     } catch (e) {
