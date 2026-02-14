@@ -8,7 +8,7 @@ import { seedKnowledgeBase } from "./seed";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-const MODELS_DIR = path.join(process.cwd(), "server", "models");
+const MODELS_DIR = path.join(process.cwd(), "backend", "models");
 const INFERENCE_URL = `http://127.0.0.1:${process.env.INFERENCE_PORT || 5001}`;
 
 const geminiApiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY || process.env.GEMINI_API_KEY;

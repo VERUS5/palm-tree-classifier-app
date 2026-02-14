@@ -32,7 +32,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./server/models:/app/server/models:ro
+      - ./backend/models:/app/backend/models:ro
 
 volumes:
   pgdata:

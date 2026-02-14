@@ -64,7 +64,7 @@ Palm Classifier is a bilingual (Arabic/English) mobile application that:
 │                      └────────────────────────────┘     │
 │                                                          │
 │  ┌─────────────────────────────────────────────────┐    │
-│  │ server/models/                                   │    │
+│  │ backend/models/                                   │    │
 │  │ ├── convnext_small_fold1_best.pth (189 MB)      │    │
 │  │ ├── convnext_small_fold2_best.pth (189 MB)      │    │
 │  │ ├── convnext_small_fold3_best.pth (189 MB)      │    │
@@ -95,8 +95,8 @@ Palm Classifier is a bilingual (Arabic/English) mobile application that:
 
 | Finding | Severity | Location | Details |
 |---------|----------|----------|---------|
-| API key loaded from environment | OK | `server/routes.ts:14` | `AI_INTEGRATIONS_GEMINI_API_KEY` read from `process.env`. Not hardcoded. |
-| Database URL from environment | OK | `server/db.ts:4` | `DATABASE_URL` read from `process.env`. Throws if missing. |
+| API key loaded from environment | OK | `backend/routes.ts:14` | `AI_INTEGRATIONS_GEMINI_API_KEY` read from `process.env`. Not hardcoded. |
+| Database URL from environment | OK | `backend/db.ts:4` | `DATABASE_URL` read from `process.env`. Throws if missing. |
 | No `.env` in repo | OK | `.gitignore` | `.env` is not committed (verified). |
 | Session secret exists | OK | Replit secrets | `SESSION_SECRET` stored as encrypted secret. |
 
@@ -106,11 +106,11 @@ Palm Classifier is a bilingual (Arabic/English) mobile application that:
 
 | Finding | Severity | Location | Recommendation |
 |---------|----------|----------|----------------|
-| No body size validation beyond Express limit | LOW | `server/index.ts:57` | Body limited to 10 MB — acceptable for base64 images. |
-| No input sanitization on chat content | MEDIUM | `server/routes.ts:161` | User-supplied `content` is passed directly to Gemini. Add length validation (e.g., max 4000 chars). |
-| `parseInt` on route params without NaN check | LOW | `server/routes.ts:135,146,158` | `parseInt(req.params.id)` could yield `NaN`. Add validation: `if (isNaN(id)) return res.status(400)...` |
+| No body size validation beyond Express limit | LOW | `backend/index.ts:57` | Body limited to 10 MB — acceptable for base64 images. |
+| No input sanitization on chat content | MEDIUM | `backend/routes.ts:161` | User-supplied `content` is passed directly to Gemini. Add length validation (e.g., max 4000 chars). |
+| `parseInt` on route params without NaN check | LOW | `backend/routes.ts:135,146,158` | `parseInt(req.params.id)` could yield `NaN`. Add validation: `if (isNaN(id)) return res.status(400)...` |
 | No rate limiting | MEDIUM | All endpoints | No middleware to prevent abuse. Recommend `express-rate-limit`. |
-| JSON response parsing from Gemini not defensive | LOW | `server/routes.ts:96` | `JSON.parse(jsonMatch[0])` could throw if Gemini returns malformed JSON. Currently caught by try/catch. |
+| JSON response parsing from Gemini not defensive | LOW | `backend/routes.ts:96` | `JSON.parse(jsonMatch[0])` could throw if Gemini returns malformed JSON. Currently caught by try/catch. |
 
 ### 2.3 Dependencies
 
@@ -127,7 +127,7 @@ Palm Classifier is a bilingual (Arabic/English) mobile application that:
 ### 2.4 CORS Policy
 
 ```typescript
-// server/index.ts:16-53
+// backend/index.ts:16-53
 // Allows: Replit dev domains + localhost origins (any port)
 // Rejects: All other origins
 ```
@@ -143,7 +143,7 @@ Palm Classifier is a bilingual (Arabic/English) mobile application that:
 The system does **NOT** run local inference. It makes **remote API calls** to Google's Gemini API:
 
 ```typescript
-// server/routes.ts:12-19
+// backend/routes.ts:12-19
 const ai = new GoogleGenAI({
   apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
   httpOptions: {
@@ -160,7 +160,7 @@ const ai = new GoogleGenAI({
 
 ### 3.2 Stored PyTorch Models (.pth Files)
 
-Five ConvNeXt Small models are stored in `server/models/`:
+Five ConvNeXt Small models are stored in `backend/models/`:
 
 ```
 convnext_small_fold1_best.pth  (189 MB)
@@ -197,7 +197,7 @@ These are **5-fold cross-validation** checkpoints of a ConvNeXt Small model (fro
 
 ### 4.1 Integration Point 1: Image Classification
 
-**File:** `server/routes.ts`, lines 51-106
+**File:** `backend/routes.ts`, lines 51-106
 **Endpoint:** `POST /api/classify`
 **AOI Location:** JSON request body
 
@@ -235,7 +235,7 @@ Respond ONLY with valid JSON in this exact format:
 
 ### 4.2 Integration Point 2: RAG Chat
 
-**File:** `server/routes.ts`, lines 156-260
+**File:** `backend/routes.ts`, lines 156-260
 **Endpoint:** `POST /api/sessions/:id/chat`
 **AOI Location:** JSON request body
 
@@ -276,7 +276,7 @@ User Question → Keyword Match → Retrieve Chunks → Build System Prompt → 
 ### 4.4 RAG Retrieval Logic
 
 ```typescript
-// server/routes.ts:21-46 — retrieveContext()
+// backend/routes.ts:21-46 — retrieveContext()
 // Keyword-based topic matching:
 //   "water"/"irrigat" → irrigation chunks
 //   "harvest"/"pick"/"ripe" → harvest chunks
@@ -317,7 +317,7 @@ palm-classifier/
 ├── shared/
 │   └── schema.ts                # Drizzle schema (documents, chunks, sessions, messages)
 │
-├── server/
+├── backend/
 │   ├── index.ts                 # Express app entry (CORS, body parsing, logging)
 │   ├── routes.ts                # All API endpoints (classify, chat, sessions, models)
 │   ├── db.ts                    # PostgreSQL connection pool
@@ -460,7 +460,7 @@ data: [DONE]
 
 ### GET /api/models
 
-Lists PyTorch model files stored in `server/models/`.
+Lists PyTorch model files stored in `backend/models/`.
 
 ```json
 {
@@ -601,7 +601,7 @@ echo ".env" >> .gitignore
 
 On Replit, the Gemini API is accessed via a proxy (`AI_INTEGRATIONS_GEMINI_BASE_URL`). On your own server, you connect directly to Google's API.
 
-Edit `server/routes.ts` — change the GoogleGenAI initialization:
+Edit `backend/routes.ts` — change the GoogleGenAI initialization:
 
 ```typescript
 // BEFORE (Replit-specific):
@@ -619,7 +619,7 @@ const ai = new GoogleGenAI({
 });
 ```
 
-Also update `server/index.ts` CORS to allow your domain:
+Also update `backend/index.ts` CORS to allow your domain:
 
 ```typescript
 // Add your production domain to allowed origins
@@ -821,7 +821,7 @@ npm install express-rate-limit
 ```
 
 ```typescript
-// Add to server/index.ts
+// Add to backend/index.ts
 import rateLimit from 'express-rate-limit';
 
 const apiLimiter = rateLimit({
@@ -853,7 +853,7 @@ models = []
 
 for i in range(1, 6):
     model = create_model('convnext_small', pretrained=False, num_classes=3)
-    model.load_state_dict(torch.load(f'server/models/convnext_small_fold{i}_best.pth', map_location='cpu'))
+    model.load_state_dict(torch.load(f'backend/models/convnext_small_fold{i}_best.pth', map_location='cpu'))
     model.eval()
     models.append(model)
 
@@ -866,7 +866,7 @@ async def predict(file: UploadFile = File(...)):
 ```
 
 2. Run alongside Node.js: `uvicorn inference_server:app --port 8001`
-3. Update `server/routes.ts` to call `http://localhost:8001/predict` instead of Gemini for classification.
+3. Update `backend/routes.ts` to call `http://localhost:8001/predict` instead of Gemini for classification.
 
 ---
 

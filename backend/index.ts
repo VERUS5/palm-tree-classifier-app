@@ -165,7 +165,7 @@ function serveLandingPage({
 function configureExpoAndLanding(app: express.Application) {
   const templatePath = path.resolve(
     process.cwd(),
-    "server",
+    "backend",
     "templates",
     "landing-page.html",
   );
@@ -230,13 +230,13 @@ function setupErrorHandler(app: express.Application) {
 let inferenceProcess: ChildProcess | null = null;
 
 function startInferenceServer() {
-  const inferenceScript = path.resolve(process.cwd(), "server", "inference_server.py");
+  const inferenceScript = path.resolve(process.cwd(), "backend", "inference_server.py");
   if (!fs.existsSync(inferenceScript)) {
     log("Inference server script not found, skipping PyTorch model loading");
     return;
   }
 
-  const modelsDir = path.resolve(process.cwd(), "server", "models");
+  const modelsDir = path.resolve(process.cwd(), "backend", "models");
   const modelFiles = fs.readdirSync(modelsDir).filter(f => f.endsWith(".pth"));
   if (modelFiles.length === 0) {
     log("No .pth model files found, skipping inference server");

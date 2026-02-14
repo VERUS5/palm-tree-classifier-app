@@ -4,8 +4,8 @@
 A bilingual (Arabic/English) mobile app for identifying date palm tree varieties (Khalas, Razeez, Shishi) using local PyTorch ConvNeXt models for classification and Gemini AI for expert agricultural advice via RAG-powered chat. Configured for Android.
 
 ## Architecture
-- **Frontend**: Expo React Native with file-based routing (expo-router)
-- **Backend**: Express.js with TypeScript on port 5000
+- **Frontend**: Expo React Native with file-based routing (expo-router) — files at project root (`app/`, `lib/`, `constants/`, `components/`)
+- **Backend**: Express.js with TypeScript on port 5000 — files in `backend/`
 - **Inference**: Python Flask server on port 5001 (spawned by Node.js backend)
 - **Database**: PostgreSQL (Neon) with Drizzle ORM
 - **AI Classification**: 5-fold ConvNeXt Small ensemble (PyTorch, torchvision) for palm variety classification
@@ -31,18 +31,27 @@ A bilingual (Arabic/English) mobile app for identifying date palm tree varieties
 - Session-based conversation history
 
 ## Project Structure
+
+### Frontend (project root)
 - `app/` - Expo Router screens (index.tsx, chat/[id].tsx)
 - `app/_layout.tsx` - Root layout with I18nProvider, QueryClient, etc.
 - `lib/i18n.tsx` - Bilingual strings and language context
-- `server/` - Express backend with API routes
-- `server/inference_server.py` - Python Flask inference server (ConvNeXt ensemble)
-- `server/models/` - 5 ConvNeXt Small .pth model files (fold1-fold5)
-- `server/index.ts` - Express entry point (spawns Python inference server)
-- `server/db.ts` - Database connection
-- `server/seed.ts` - Knowledge base seeder
-- `server/routes.ts` - All API endpoints
-- `shared/schema.ts` - Drizzle schema (documents, chunks, chat_sessions, chat_messages)
+- `lib/query-client.ts` - API client and React Query setup
 - `constants/colors.ts` - App theme (forest green #1B4332 / cream #FAF3E0 palette)
+- `components/` - Shared React Native components (ErrorBoundary, etc.)
+
+### Backend (`backend/`)
+- `backend/index.ts` - Express entry point (spawns Python inference server)
+- `backend/routes.ts` - All API endpoints
+- `backend/db.ts` - Database connection
+- `backend/seed.ts` - Knowledge base seeder
+- `backend/storage.ts` - Storage utilities
+- `backend/inference_server.py` - Python Flask inference server (ConvNeXt ensemble)
+- `backend/models/` - 5 ConvNeXt Small .pth model files (fold1-fold5)
+- `backend/templates/` - Landing page HTML template
+
+### Shared
+- `shared/schema.ts` - Drizzle schema (documents, chunks, chat_sessions, chat_messages)
 - `pyproject.toml` - Python dependencies (torch, torchvision, flask, pillow)
 
 ## API Endpoints
@@ -51,7 +60,7 @@ A bilingual (Arabic/English) mobile app for identifying date palm tree varieties
 - GET /api/sessions/:id/messages - Get session messages
 - POST /api/sessions/:id/chat - Streaming RAG chat (accepts lang param for bilingual responses)
 - GET /api/knowledge-base - Browse knowledge base
-- GET /api/models - List .pth model files in server/models/
+- GET /api/models - List .pth model files in backend/models/
 
 ## Python Inference Server (port 5001)
 - GET /health - Returns model count and status

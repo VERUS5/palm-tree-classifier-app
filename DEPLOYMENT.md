@@ -16,10 +16,10 @@ cd palmclassifier
 
 ### Step 2: Add your model files
 
-Place all 5 ConvNeXt model files in `server/models/`:
+Place all 5 ConvNeXt model files in `backend/models/`:
 
 ```
-server/models/
+backend/models/
 ├── convnext_small_fold1_best.pth
 ├── convnext_small_fold2_best.pth
 ├── convnext_small_fold3_best.pth
@@ -178,7 +178,7 @@ server {
 ## Troubleshooting
 
 **Models not loading?**
-- Check that all 5 `.pth` files are in `server/models/`
+- Check that all 5 `.pth` files are in `backend/models/`
 - Check logs: `docker compose logs app | grep inference`
 - The models take ~30 seconds to load on startup
 
