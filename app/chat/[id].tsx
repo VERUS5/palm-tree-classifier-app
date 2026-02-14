@@ -275,7 +275,7 @@ export default function ChatScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + webTopInset }]}>
       <View style={[styles.navBar, { borderBottomColor: colors.border, backgroundColor: colors.surface }, isRTL && styles.rowReverse]}>
-        <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={12}>
+        <Pressable onPress={() => router.canGoBack() ? router.back() : router.replace("/")} style={styles.backButton} hitSlop={12}>
           <Ionicons name={isRTL ? "chevron-forward" : "chevron-back"} size={24} color={colors.forest} />
         </Pressable>
         <View style={styles.navCenter}>
