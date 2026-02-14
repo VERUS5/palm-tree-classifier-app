@@ -146,7 +146,7 @@ export default function HomeScreen() {
       const title = classification.isPalm
         ? `${treeName} ${isRTL ? "نخلة" : "Palm"} (${Math.round(classification.confidence * 100)}%)`
         : classification.class === "Unknown" && classification.source === "convnext_ensemble"
-          ? `${t.unknownType} (${Math.round(classification.confidence * 100)}%)`
+          ? t.unknownType
           : t.unidentified;
 
       const sessionRes = await fetch(`${baseUrl}api/sessions`, {

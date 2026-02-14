@@ -135,8 +135,8 @@ ${lang === "ar" ? "Write entirely in Arabic." : "Write entirely in English."}`,
           });
         } else {
           const lowConfDesc = lang === "ar"
-            ? `تم تحليل الصورة بواسطة نموذج ConvNeXt ولكن نسبة الثقة ${(modelResult.confidence * 100).toFixed(1)}% أقل من الحد المطلوب (96%). أقرب تصنيف محتمل: ${modelResult.class}. يرجى التقاط صورة أوضح أو تجربة زاوية مختلفة للحصول على نتيجة أدق.`
-            : `The image was analyzed by the ConvNeXt model but confidence is ${(modelResult.confidence * 100).toFixed(1)}%, below the required 96% threshold. Closest match: ${modelResult.class}. Try taking a clearer photo or a different angle for a more accurate result.`;
+            ? `نوع غير معروف. يرجى التقاط صورة أوضح أو تجربة زاوية مختلفة للحصول على نتيجة أدق.`
+            : `Unknown type. Try taking a clearer photo or a different angle for a more accurate result.`;
 
           return res.json({
             isPalm: false,
