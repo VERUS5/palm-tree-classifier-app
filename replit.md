@@ -17,9 +17,11 @@ A bilingual (Arabic/English) mobile app for identifying date palm tree varieties
 1. Image sent as base64 to `/api/classify`
 2. Node.js backend forwards to Python inference server (`http://127.0.0.1:5001/predict`)
 3. Python server runs 5-fold ConvNeXt Small ensemble with softmax averaging
-4. If confidence > 30%, uses ConvNeXt result + Gemini for description
-5. If inference server unavailable or low confidence, falls back to Gemini Vision
-6. Response includes `source` field: "convnext_ensemble" or "gemini_vision"
+4. If confidence >= 96%, uses ConvNeXt result + Gemini for description (identified)
+5. If confidence < 96%, returns "Unknown" type with low-confidence explanation and suggested questions
+6. If inference server unavailable, falls back to Gemini Vision
+7. Response includes `source` field: "convnext_ensemble" or "gemini_vision"
+8. Chat screen shows suggested questions after welcome message (general palm questions for Unknown, specific care questions for identified types)
 
 ## Key Features
 - Bilingual Arabic/English interface with RTL support
