@@ -39,3 +39,21 @@ yarn-error.*
 .vercel
 
 .env
+
+# PyTorch model files (too large for GitHub)
+*.pth
+*.pt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Replit
+.replit
+replit.nix
+.cache/
+.local/
+.upm/
+static-build/
+migrations/
