@@ -6,3 +6,4 @@ Place your .pth model files here:
 - Shishi_model.pth
 
 These PyTorch ConvNeXt models are stored for future integration.
+you need to put the files .pth here becuse I cant pui it in github
