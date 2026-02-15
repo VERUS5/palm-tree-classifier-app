@@ -94,7 +94,7 @@ Node.js Backend (port 5000)
 1. User takes a photo of a date palm
 2. Image is sent to the Node.js backend
 3. Backend forwards to the Python inference server for ConvNeXt ensemble classification
-4. If confidence > 30%, uses that result + asks Gemini for a description
+4. If confidence >= 96%, uses that result + asks Gemini for a description
 5. If inference server is unavailable, falls back to Gemini Vision for classification
 6. User can then chat about the identified palm variety using RAG-powered AI chat
 
