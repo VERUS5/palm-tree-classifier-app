@@ -5,6 +5,7 @@ import { db } from "./db";
 import { documents, chunks, chatSessions, chatMessages } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { seedKnowledgeBase } from "./seed";
+import { retrieveWithQueryExpansion, getAllKnowledgeBase } from "./rag-engine";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -21,33 +22,6 @@ if (geminiBaseUrl) {
   aiConfig.httpOptions = { apiVersion: "", baseUrl: geminiBaseUrl };
 }
 const ai = new GoogleGenAI(aiConfig);
-
-function retrieveContext(allChunks: { topic: string; content: string }[], query: string): string {
-  const queryLower = query.toLowerCase();
-  const matched: string[] = [];
-
-  for (const chunk of allChunks) {
-    const topicLower = chunk.topic.toLowerCase();
-    if (
-      (queryLower.includes("water") || queryLower.includes("irrigat")) && topicLower === "irrigation" ||
-      (queryLower.includes("harvest") || queryLower.includes("pick") || queryLower.includes("ripe")) && topicLower === "harvest" ||
-      (queryLower.includes("pest") || queryLower.includes("bug") || queryLower.includes("disease") || queryLower.includes("insect")) && topicLower === "pests" ||
-      (queryLower.includes("soil") || queryLower.includes("ground") || queryLower.includes("plant")) && topicLower === "soil" ||
-      (queryLower.includes("fertil") || queryLower.includes("nutri") || queryLower.includes("feed")) && topicLower === "nutrition"
-    ) {
-      matched.push(`[${chunk.topic.toUpperCase()}]: ${chunk.content}`);
-    }
-  }
-
-  if (matched.length === 0) {
-    const general = allChunks.find(c => c.topic === "general");
-    if (general) matched.push(`[GENERAL]: ${general.content}`);
-    const irrigation = allChunks.find(c => c.topic === "irrigation");
-    if (irrigation) matched.push(`[IRRIGATION]: ${irrigation.content}`);
-  }
-
-  return matched.join("\n\n");
-}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   await seedKnowledgeBase();
@@ -268,14 +242,12 @@ ${lang === "ar" ? "Write the description in Arabic." : "Write the description in
 
       await db.insert(chatMessages).values({ sessionId, role: "user", content });
 
-      let ragContext = "";
-      if (session.treeClass && session.treeClass !== "Unknown") {
-        const docs = await db.select().from(documents).where(eq(documents.category, session.treeClass));
-        if (docs.length > 0) {
-          const docChunks = await db.select().from(chunks).where(eq(chunks.documentId, docs[0].id));
-          ragContext = retrieveContext(docChunks, content);
-        }
-      }
+      const category = session.treeClass && session.treeClass !== "Unknown" ? session.treeClass : null;
+      const ragResult = await retrieveWithQueryExpansion(content, category, lang || "en", 5);
+      const ragContext = ragResult.context;
+
+      console.log("[RAG] Query:", content.substring(0, 80));
+      console.log("[RAG] Retrieved:", ragResult.sources.length, "chunks, top score:", ragResult.sources[0]?.score?.toFixed(2) || "N/A");
 
       const history = await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId)).orderBy(chatMessages.createdAt);
 
@@ -292,45 +264,57 @@ ${lang === "ar" ? "Write the description in Arabic." : "Write the description in
           ? "المستخدم يسأل عن النخيل بشكل عام."
           : "The user is asking about palm trees in general.";
 
+      const ragSourceInfo = ragResult.sources.length > 0
+        ? ragResult.sources.map(s => `${s.category}/${s.topic} (score: ${s.score.toFixed(1)})`).join(", ")
+        : "no specific matches";
+
       const systemPrompt = isArabic
         ? `أنت مستشار زراعي خبير متخصص حصرياً في نخيل التمر في شبه الجزيرة العربية. تقدم نصائح عملية وقابلة للتطبيق للمزارعين والمهتمين.
 
 ${treeInfo}
 
-${ragContext ? `سياق قاعدة المعرفة (استخدم هذه المعلومات لتقديم إجابات دقيقة):
-${ragContext}` : ""}
+${ragContext ? `سياق قاعدة المعرفة (مصادر: ${ragSourceInfo}):
+${ragContext}
+
+تعليمات استخدام السياق:
+- اعتمد بشكل أساسي على المعلومات من قاعدة المعرفة أعلاه
+- ادمج المعلومات من مصادر متعددة إذا كانت ذات صلة
+- اذكر أرقامًا ونسبًا محددة من السياق عند الإمكان
+- إذا كان السياق لا يغطي الإجابة بالكامل، أكمل من خبرتك مع الإشارة إلى ذلك` : "لا يوجد سياق محدد من قاعدة المعرفة. قدم نصيحة خبير عامة عن نخيل التمر."}
 
 الإرشادات:
 - أجب دائماً باللغة العربية
 - كن ودوداً ومهنياً ومختصراً
-- استخدم سياق قاعدة المعرفة عند توفره
-- إذا لم يغطي السياق السؤال، قدم نصيحة خبير عامة مع الإشارة إلى ذلك
 - قدم نصائح عملية وتوصيات قابلة للتطبيق
+- اذكر أرقامًا ومقاييس محددة عند الإمكان
 
 قاعدة صارمة - نطاق المحادثة:
 - أنت متخصص فقط في نخيل التمر والزراعة والتربة والري والآفات والحصاد والتسميد والمناخ المتعلق بالنخيل
 - إذا سأل المستخدم عن أي موضوع خارج نطاق النخيل والزراعة (مثل: البرمجة، الطبخ، الرياضة، السياسة، التاريخ غير الزراعي، الرياضيات، الأخبار، أو أي موضوع آخر)، أجب فقط بـ: "عذراً، أنا متخصص فقط في نخيل التمر والزراعة. يمكنني مساعدتك في أي سؤال يتعلق بزراعة النخيل ورعايتها."
-- لا تحاول الإجابة على أي سؤال خارج النطاق حتى لو كنت تعرف الإجابة
-- لا تقدم معلومات عامة غير متعلقة بالنخيل أو الزراعة`
+- لا تحاول الإجابة على أي سؤال خارج النطاق حتى لو كنت تعرف الإجابة`
         : `You are an expert agricultural advisor specializing EXCLUSIVELY in Date Palm trees in the Arabian Peninsula. You provide practical, actionable advice to farmers and enthusiasts.
 
 ${treeInfo}
 
-${ragContext ? `KNOWLEDGE BASE CONTEXT (use this information to provide accurate answers):
-${ragContext}` : ""}
+${ragContext ? `KNOWLEDGE BASE CONTEXT (sources: ${ragSourceInfo}):
+${ragContext}
+
+CONTEXT USAGE INSTRUCTIONS:
+- Base your answers primarily on the knowledge base information above
+- Synthesize information from multiple sources when relevant
+- Cite specific numbers, percentages, and measurements from the context when possible
+- If the context doesn't fully cover the answer, supplement with your expertise but mention this` : "No specific knowledge base context available. Provide general expert advice about date palm trees."}
 
 Guidelines:
 - Always respond in English
 - Be friendly, professional, and concise
-- Use the knowledge base context when available
-- If the context doesn't cover the question, provide general expert advice but mention you're using general knowledge
-- Include practical tips and actionable recommendations
+- Provide practical tips with specific measurements and numbers when possible
+- Include actionable recommendations
 
 STRICT SCOPE RULE:
 - You ONLY answer questions about date palm trees, agriculture, soil, irrigation, pests, harvesting, fertilization, and climate related to palm cultivation
 - If the user asks about ANY topic outside of palm trees and agriculture (such as: programming, cooking, sports, politics, non-agricultural history, math, news, or any other unrelated topic), respond ONLY with: "I'm sorry, I specialize only in date palm trees and agriculture. I can help you with any questions about palm tree cultivation and care."
-- Do NOT attempt to answer any out-of-scope question even if you know the answer
-- Do NOT provide general information unrelated to palm trees or agriculture`;
+- Do NOT attempt to answer any out-of-scope question even if you know the answer`;
 
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache, no-transform");
@@ -371,6 +355,66 @@ STRICT SCOPE RULE:
     }
   });
 
+  app.post("/api/rag/search", async (req: Request, res: Response) => {
+    try {
+      const { query, category, lang, topK } = req.body;
+      if (!query) {
+        return res.status(400).json({ error: "Query is required" });
+      }
+      const result = await retrieveWithQueryExpansion(query, category || null, lang || "en", topK || 5);
+      res.json({
+        query,
+        category: category || "all",
+        lang: lang || "en",
+        resultsCount: result.sources.length,
+        sources: result.sources.map(s => ({
+          id: s.id,
+          category: s.category,
+          topic: s.topic,
+          score: parseFloat(s.score.toFixed(3)),
+          contentPreview: (lang === "ar" && s.contentAr ? s.contentAr : s.content).substring(0, 200) + "...",
+        })),
+        context: result.context,
+        debug: result.debugInfo,
+      });
+    } catch (error) {
+      console.error("RAG search error:", error);
+      res.status(500).json({ error: "RAG search failed" });
+    }
+  });
+
+  app.get("/api/rag/stats", async (_req: Request, res: Response) => {
+    try {
+      const allDocs = await db.select().from(documents);
+      const allChunks = await db.select().from(chunks);
+      const topicCounts: Record<string, number> = {};
+      const categoryCounts: Record<string, number> = {};
+      for (const chunk of allChunks) {
+        topicCounts[chunk.topic] = (topicCounts[chunk.topic] || 0) + 1;
+      }
+      for (const doc of allDocs) {
+        categoryCounts[doc.category] = (categoryCounts[doc.category] || 0) + 1;
+      }
+
+      const hasArabic = allChunks.filter(c => c.contentAr).length;
+      const hasKeywords = allChunks.filter(c => c.keywords && c.keywords.length > 0).length;
+
+      res.json({
+        documents: allDocs.length,
+        chunks: allChunks.length,
+        bilingualChunks: hasArabic,
+        chunksWithKeywords: hasKeywords,
+        topicDistribution: topicCounts,
+        categoryDistribution: categoryCounts,
+        ragVersion: 2,
+        features: ["bm25_scoring", "topic_boost", "keyword_matching", "query_expansion", "bilingual_ar_en"],
+      });
+    } catch (error) {
+      console.error("RAG stats error:", error);
+      res.status(500).json({ error: "Failed to get RAG stats" });
+    }
+  });
+
   app.get("/api/models", async (_req: Request, res: Response) => {
     try {
       if (!fs.existsSync(MODELS_DIR)) {
@@ -395,12 +439,7 @@ STRICT SCOPE RULE:
 
   app.get("/api/knowledge-base", async (_req: Request, res: Response) => {
     try {
-      const docs = await db.select().from(documents).orderBy(documents.category);
-      const result = [];
-      for (const doc of docs) {
-        const docChunks = await db.select().from(chunks).where(eq(chunks.documentId, doc.id));
-        result.push({ ...doc, chunks: docChunks });
-      }
+      const result = await getAllKnowledgeBase();
       res.json(result);
     } catch (error) {
       console.error("Error fetching knowledge base:", error);
