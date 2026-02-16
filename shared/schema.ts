@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, serial, text, varchar, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, integer, timestamp, jsonb, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -33,6 +33,10 @@ export const chunks = pgTable("chunks", {
   documentId: integer("document_id").notNull().references(() => documents.id, { onDelete: "cascade" }),
   topic: text("topic").notNull(),
   content: text("content").notNull(),
+  contentAr: text("content_ar"),
+  keywords: text("keywords").array(),
+  keywordsAr: text("keywords_ar").array(),
+  chunkIndex: integer("chunk_index").default(0),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
