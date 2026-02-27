@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "node:http";
 import { GoogleGenAI } from "@google/genai";
-import { db } from "./db";
+import { db, ensureTables } from "./db";
 import { documents, chunks, chatSessions, chatMessages } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { seedKnowledgeBase } from "./seed";
@@ -24,6 +24,7 @@ if (geminiBaseUrl) {
 const ai = new GoogleGenAI(aiConfig);
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  await ensureTables();
   await seedKnowledgeBase();
 
   app.post("/api/classify", async (req: Request, res: Response) => {

@@ -10,3 +10,56 @@ const pool = new pg.Pool({
 });
 
 export const db = drizzle(pool);
+
+export async function ensureTables() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS documents (
+        id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        category TEXT NOT NULL,
+        content_type TEXT NOT NULL DEFAULT 'text',
+        metadata JSONB,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS chunks (
+        id SERIAL PRIMARY KEY,
+        document_id INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+        topic TEXT NOT NULL,
+        content TEXT NOT NULL,
+        content_ar TEXT,
+        keywords TEXT[],
+        keywords_ar TEXT[],
+        chunk_index INTEGER DEFAULT 0,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS chat_sessions (
+        id SERIAL PRIMARY KEY,
+        tree_class TEXT,
+        image_data TEXT,
+        title TEXT NOT NULL DEFAULT 'New Session',
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        id SERIAL PRIMARY KEY,
+        session_id INTEGER NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+        role TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log("Database tables verified/created successfully");
+  } finally {
+    client.release();
+  }
+}
