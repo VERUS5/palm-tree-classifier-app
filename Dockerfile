@@ -18,6 +18,7 @@ RUN npm ci --ignore-scripts
 
 COPY . .
 
+RUN chmod +x docker-entrypoint.sh
 RUN npm run server:build
 
 EXPOSE 5000
@@ -26,4 +27,4 @@ ENV NODE_ENV=production
 ENV PORT=5000
 ENV INFERENCE_PORT=5001
 
-CMD ["node", "server_dist/index.js"]
+CMD ["./docker-entrypoint.sh"]
