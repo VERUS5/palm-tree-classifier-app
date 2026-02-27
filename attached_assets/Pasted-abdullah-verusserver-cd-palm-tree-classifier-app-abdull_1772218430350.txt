@@ -1,0 +1,27 @@
+abdullah@verusserver:~$ cd ~/palm-tree-classifier-app
+abdullah@verusserver:~/palm-tree-classifier-app$ docker compose ps
+NAME                             IMAGE                          COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+palm-tree-classifier-app-app-1   palm-tree-classifier-app-app   "docker-entrypoint.s…"   app       24 minutes ago   Up 24 minutes             0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+palm-tree-classifier-app-db-1    postgres:16-alpine             "docker-entrypoint.s…"   db        24 minutes ago   Up 24 minutes (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+abdullah@verusserver:~/palm-tree-classifier-app$ sudo systemctl status cloudflared
+● cloudflared.service - cloudflared
+     Loaded: loaded (/etc/systemd/system/cloudflared.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-02-27 15:14:17 UTC; 3h 39min ago
+   Main PID: 2929122 (cloudflared)
+      Tasks: 17 (limit: 18980)
+     Memory: 18.6M (peak: 27.0M)
+        CPU: 1min 29.620s
+     CGroup: /system.slice/cloudflared.service
+             └─2929122 /usr/bin/cloudflared --no-autoupdate tunnel run --token eyJhIjoiZmVlNGNmZjBmZjkyM>
+
+Feb 27 17:16:26 verusserver cloudflared[2929122]: 2026-02-27T17:16:26Z ERR  error="Unable to reach the o>
+Feb 27 17:16:26 verusserver cloudflared[2929122]: 2026-02-27T17:16:26Z ERR Request failed error="Unable >
+Feb 27 17:26:40 verusserver cloudflared[2929122]: 2026-02-27T17:26:40Z ERR  error="Unable to reach the o>
+Feb 27 17:26:40 verusserver cloudflared[2929122]: 2026-02-27T17:26:40Z ERR Request failed error="Unable >
+Feb 27 17:26:42 verusserver cloudflared[2929122]: 2026-02-27T17:26:42Z ERR  error="Unable to reach the o>
+Feb 27 17:26:42 verusserver cloudflared[2929122]: 2026-02-27T17:26:42Z ERR Request failed error="Unable >
+Feb 27 17:28:59 verusserver cloudflared[2929122]: 2026-02-27T17:28:59Z ERR  error="Unable to reach the o>
+Feb 27 17:28:59 verusserver cloudflared[2929122]: 2026-02-27T17:28:59Z ERR Request failed error="Unable >
+Feb 27 17:29:00 verusserver cloudflared[2929122]: 2026-02-27T17:29:00Z ERR  error="Unable to reach the o>
+Feb 27 17:29:00 verusserver cloudflared[2929122]: 2026-02-27T17:29:00Z ERR Request failed error="Unable >
+lines 1-20/20 (END)
