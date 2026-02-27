@@ -1,0 +1,382 @@
+abdullah@verusserver:~/palm-tree-classifier-app$ docker compose logs -f app                             
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | /app/node_modules/pg-pool/index.js:45
+app-1  |     Error.captureStackTrace(err)
+app-1  |           ^
+app-1  | 
+app-1  | error: relation "documents" does not exist
+app-1  |     at /app/node_modules/pg-pool/index.js:45:11
+app-1  |     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+app-1  |     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+app-1  |     at async seedKnowledgeBase (file:///app/server_dist/index.js:306:24)
+app-1  |     at async registerRoutes (file:///app/server_dist/index.js:743:3)
+app-1  |     at async file:///app/server_dist/index.js:1340:18 {
+app-1  |   length: 108,
+app-1  |   severity: 'ERROR',
+app-1  |   code: '42P01',
+app-1  |   detail: undefined,
+app-1  |   hint: undefined,
+app-1  |   position: '81',
+app-1  |   internalPosition: undefined,
+app-1  |   internalQuery: undefined,
+app-1  |   where: undefined,
+app-1  |   schema: undefined,
+app-1  |   table: undefined,
+app-1  |   column: undefined,
+app-1  |   dataType: undefined,
+app-1  |   constraint: undefined,
+app-1  |   file: 'parse_relation.c',
+app-1  |   line: '1449',
+app-1  |   routine: 'parserOpenTable'
+app-1  | }
+app-1  | 
+app-1  | Node.js v22.22.0
+app-1 exited with code 1 (restarting)
