@@ -25,6 +25,47 @@ interface ScoredChunk {
   category: string;
 }
 
+export async function generateEmbedding(text: string): Promise<number[]> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY not set — embeddings require a direct Google API key");
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${apiKey}`;
+  const body = {
+    model: "models/text-embedding-004",
+    content: { parts: [{ text }] },
+  };
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText);
+  }
+
+  const data = await res.json() as { embedding?: { values?: number[] } };
+  const values = data.embedding?.values;
+  if (!values || values.length === 0) {
+    throw new Error("Empty embedding returned from Gemini");
+  }
+  return values;
+}
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  if (a.length !== b.length || a.length === 0) return 0;
+  let dot = 0, normA = 0, normB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+  const denom = Math.sqrt(normA) * Math.sqrt(normB);
+  return denom === 0 ? 0 : dot / denom;
+}
+
 const STOPWORDS = new Set([
   "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
   "have", "has", "had", "do", "does", "did", "will", "would", "could",
@@ -167,6 +208,7 @@ export async function retrieveRAGContext(
         contentAr: chunks.contentAr,
         keywords: chunks.keywords,
         keywordsAr: chunks.keywordsAr,
+        embedding: chunks.embedding,
         chunkIndex: chunks.chunkIndex,
         category: documents.category,
       }).from(chunks).innerJoin(documents, eq(chunks.documentId, documents.id)).where(eq(documents.category, category))
@@ -178,6 +220,7 @@ export async function retrieveRAGContext(
         contentAr: chunks.contentAr,
         keywords: chunks.keywords,
         keywordsAr: chunks.keywordsAr,
+        embedding: chunks.embedding,
         chunkIndex: chunks.chunkIndex,
         category: documents.category,
       }).from(chunks).innerJoin(documents, eq(chunks.documentId, documents.id));
@@ -203,11 +246,37 @@ export async function retrieveRAGContext(
     }
   }
 
-  const scored: ScoredChunk[] = allChunks.map((chunk, i) => {
+  const bm25Scores = allChunks.map((chunk, i) => {
     const bm25 = computeBM25Score(queryTokens, allDocTokens[i], avgDocLen, allChunks.length, docFreqs);
     const topicBoost = computeTopicBoost(queryTokens, chunk.topic);
     const kwSet = lang === "ar" ? chunk.keywordsAr : chunk.keywords;
     const keywordBoost = computeKeywordBoost(queryTokens, kwSet);
+    return bm25 + topicBoost + keywordBoost;
+  });
+
+  const maxBM25 = Math.max(...bm25Scores, 1);
+
+  let queryEmbedding: number[] | null = null;
+  const hasEmbeddings = allChunks.some(c => c.embedding && (c.embedding as number[]).length > 0);
+  if (hasEmbeddings) {
+    try {
+      queryEmbedding = await generateEmbedding(query);
+    } catch (err) {
+      console.warn("Failed to generate query embedding, using BM25 only:", (err as Error).message);
+    }
+  }
+
+  const scored: ScoredChunk[] = allChunks.map((chunk, i) => {
+    const bm25Norm = bm25Scores[i] / maxBM25;
+    const kwSet = lang === "ar" ? chunk.keywordsAr : chunk.keywords;
+
+    let hybridScore: number;
+    if (queryEmbedding && chunk.embedding && (chunk.embedding as number[]).length > 0) {
+      const cosine = cosineSimilarity(queryEmbedding, chunk.embedding as number[]);
+      hybridScore = 0.55 * bm25Norm + 0.45 * cosine;
+    } else {
+      hybridScore = bm25Norm;
+    }
 
     return {
       id: chunk.id,
@@ -216,7 +285,7 @@ export async function retrieveRAGContext(
       content: chunk.content,
       contentAr: chunk.contentAr,
       keywords: kwSet,
-      score: bm25 + topicBoost + keywordBoost,
+      score: hybridScore,
       category: chunk.category,
     };
   });
@@ -237,7 +306,7 @@ export async function retrieveRAGContext(
 
   const contextParts = topChunks.map(c => {
     const text = lang === "ar" && c.contentAr ? c.contentAr : c.content;
-    return `[${c.category} - ${c.topic.toUpperCase()}] (relevance: ${c.score.toFixed(2)}):\n${text}`;
+    return `[${c.category} - ${c.topic.toUpperCase()}] (relevance: ${c.score.toFixed(3)}):\n${text}`;
   });
 
   return {
@@ -246,7 +315,8 @@ export async function retrieveRAGContext(
     debugInfo: {
       totalChunks: allChunks.length,
       queryTokens,
-      topScores: topChunks.map(c => ({ topic: c.topic, category: c.category, score: c.score.toFixed(2) })),
+      embeddingUsed: queryEmbedding !== null,
+      topScores: topChunks.map(c => ({ topic: c.topic, category: c.category, score: c.score.toFixed(3) })),
       category,
     },
   };

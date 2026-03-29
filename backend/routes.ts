@@ -4,7 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import { db, ensureTables } from "./db";
 import { documents, chunks, chatSessions, chatMessages } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
-import { seedKnowledgeBase } from "./seed";
+import { seedKnowledgeBase, backfillEmbeddings } from "./seed";
 import { retrieveWithQueryExpansion, getAllKnowledgeBase } from "./rag-engine";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -26,6 +26,9 @@ const ai = new GoogleGenAI(aiConfig);
 export async function registerRoutes(app: Express): Promise<Server> {
   await ensureTables();
   await seedKnowledgeBase();
+  backfillEmbeddings().catch(err =>
+    console.warn("Background embedding backfill error:", (err as Error).message)
+  );
 
   app.post("/api/classify", async (req: Request, res: Response) => {
     try {

@@ -38,6 +38,7 @@ export async function ensureTables() {
         content_ar TEXT,
         keywords TEXT[],
         keywords_ar TEXT[],
+        embedding real[],
         chunk_index INTEGER DEFAULT 0,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
@@ -57,6 +58,9 @@ export async function ensureTables() {
         content TEXT NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+    await client.query(`
+      ALTER TABLE chunks ADD COLUMN IF NOT EXISTS embedding real[];
     `);
     console.log("Database tables verified/created successfully");
   } finally {

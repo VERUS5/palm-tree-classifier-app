@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { documents, chunks } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
+import { generateEmbedding } from "./rag-engine";
 
 interface ChunkEntry {
   topic: string;
@@ -247,6 +248,26 @@ const knowledgeBase: KnowledgeEntry[] = [
   },
 ];
 
+async function generateEmbeddingWithRetry(text: string, maxRetries = 3): Promise<number[] | null> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await generateEmbedding(text);
+    } catch (err) {
+      const msg = (err as Error).message;
+      if (msg.includes("GEMINI_API_KEY not set")) {
+        return null;
+      }
+      if (attempt < maxRetries) {
+        await new Promise(res => setTimeout(res, 1000 * attempt));
+      } else {
+        console.warn(`Failed to generate embedding after ${maxRetries} attempts:`, msg);
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
 export async function seedKnowledgeBase() {
   const existingDocs = await db.select().from(documents);
   if (existingDocs.length > 0) {
@@ -274,6 +295,8 @@ export async function seedKnowledgeBase() {
 
     for (let i = 0; i < entry.chunks.length; i++) {
       const chunk = entry.chunks[i];
+      const embeddingText = `${chunk.topic}: ${chunk.content}`;
+      const embedding = await generateEmbeddingWithRetry(embeddingText);
       await db.insert(chunks).values({
         documentId: doc.id,
         topic: chunk.topic,
@@ -281,11 +304,48 @@ export async function seedKnowledgeBase() {
         contentAr: chunk.contentAr,
         keywords: chunk.keywords,
         keywordsAr: chunk.keywordsAr,
+        embedding: embedding ?? undefined,
         chunkIndex: i,
       });
     }
   }
 
   const totalChunks = knowledgeBase.reduce((sum, e) => sum + e.chunks.length, 0);
-  console.log(`RAG knowledge base seeded: ${knowledgeBase.length} documents, ${totalChunks} chunks (bilingual with keywords)`);
+  console.log(`RAG knowledge base seeded: ${knowledgeBase.length} documents, ${totalChunks} chunks (bilingual with keywords + embeddings)`);
+}
+
+export async function backfillEmbeddings() {
+  if (!process.env.GEMINI_API_KEY) {
+    console.log("GEMINI_API_KEY not set — skipping embedding backfill (add key to enable semantic search)");
+    return;
+  }
+
+  const chunksWithoutEmbedding = await db.select({
+    id: chunks.id,
+    topic: chunks.topic,
+    content: chunks.content,
+  }).from(chunks).where(isNull(chunks.embedding));
+
+  if (chunksWithoutEmbedding.length === 0) {
+    console.log("All chunks already have embeddings.");
+    return;
+  }
+
+  console.log(`Backfilling embeddings for ${chunksWithoutEmbedding.length} chunks...`);
+  let succeeded = 0;
+  let failed = 0;
+
+  for (const chunk of chunksWithoutEmbedding) {
+    const embeddingText = `${chunk.topic}: ${chunk.content}`;
+    const embedding = await generateEmbeddingWithRetry(embeddingText);
+    if (embedding) {
+      await db.update(chunks).set({ embedding }).where(eq(chunks.id, chunk.id));
+      succeeded++;
+    } else {
+      failed++;
+    }
+    await new Promise(res => setTimeout(res, 200));
+  }
+
+  console.log(`Embedding backfill complete: ${succeeded} succeeded, ${failed} failed`);
 }

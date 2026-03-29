@@ -36,6 +36,7 @@ export const chunks = pgTable("chunks", {
   contentAr: text("content_ar"),
   keywords: text("keywords").array(),
   keywordsAr: text("keywords_ar").array(),
+  embedding: real("embedding").array(),
   chunkIndex: integer("chunk_index").default(0),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
