@@ -1,0 +1,64 @@
+app-1  |  * Running on all addresses (0.0.0.0)
+app-1  |  * Running on http://127.0.0.1:5001
+app-1  |  * Running on http://172.21.0.3:5001
+app-1  | INFO:werkzeug:Press CTRL+C to quit
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | Database tables verified/created successfully
+app-1  | Knowledge base already seeded with full RAG data, skipping...
+app-1  | express server serving on port 5000
+app-1  | [inference] INFO:__main__:Loading fold 1 from /app/backend/models/convnext_small_fold1_best.pth...
+app-1  | [inference] INFO:__main__:Fold 1 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 2 from /app/backend/models/convnext_small_fold2_best.pth...
+app-1  | [inference] INFO:__main__:Fold 2 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 3 from /app/backend/models/convnext_small_fold3_best.pth...
+app-1  | [inference] INFO:__main__:Fold 3 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 4 from /app/backend/models/convnext_small_fold4_best.pth...
+app-1  | [inference] INFO:__main__:Fold 4 loaded successfully
+app-1  | INFO:__main__:Loading fold 5 from /app/backend/models/convnext_small_fold5_best.pth...
+app-1  | [inference] INFO:__main__:Fold 5 loaded successfully
+app-1  | INFO:__main__:Loaded 5 model folds for ensemble prediction
+app-1  | [inference] INFO:__main__:Starting inference server on port 5001
+app-1  | [inference] * Tip: There are .env files present. Install python-dotenv to use them.
+app-1  | [inference] * Serving Flask app 'inference_server'
+app-1  |  * Debug mode: off
+app-1  | [inference] INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+app-1  |  * Running on all addresses (0.0.0.0)
+app-1  |  * Running on http://127.0.0.1:5001
+app-1  |  * Running on http://172.21.0.3:5001
+app-1  | INFO:werkzeug:Press CTRL+C to quit
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | Database tables verified/created successfully
+app-1  | Knowledge base already seeded with full RAG data, skipping...
+app-1  | express server serving on port 5000
+app-1  | [inference] INFO:__main__:Loading fold 1 from /app/backend/models/convnext_small_fold1_best.pth...
+app-1  | [inference] INFO:__main__:Fold 1 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 2 from /app/backend/models/convnext_small_fold2_best.pth...
+app-1  | [inference] INFO:__main__:Fold 2 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 3 from /app/backend/models/convnext_small_fold3_best.pth...
+app-1  | [inference] INFO:__main__:Fold 3 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 4 from /app/backend/models/convnext_small_fold4_best.pth...
+app-1  | [inference] INFO:__main__:Fold 4 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 5 from /app/backend/models/convnext_small_fold5_best.pth...
+app-1  | [inference] INFO:__main__:Fold 5 loaded successfully
+app-1  | INFO:__main__:Loaded 5 model folds for ensemble prediction
+app-1  | [inference] INFO:__main__:Starting inference server on port 5001
+app-1  | [inference] * Tip: There are .env files present. Install python-dotenv to use them.
+app-1  | [inference] * Serving Flask app 'inference_server'
+app-1  |  * Debug mode: off
+app-1  | [inference] INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+app-1  |  * Running on all addresses (0.0.0.0)
+app-1  |  * Running on http://127.0.0.1:5001
+app-1  |  * Running on http://172.21.0.3:5001
+app-1  | [inference] INFO:werkzeug:Press CTRL+C to quit
