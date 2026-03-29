@@ -1,0 +1,75 @@
+*** System restart required ***
+Last login: Sun Mar 29 07:57:52 2026 from 127.0.0.1
+abdullah@verusserver:~$ cd ~/palm-tree-classifier-app
+git pull
+docker compose restart app
+Updating 67fbfb9..d90fbcb
+error: Your local changes to the following files would be overwritten by merge:
+        backend/index.ts
+        docker-compose.yml
+Please commit your changes or stash them before you merge.
+error: The following untracked working tree files would be overwritten by merge:
+        start-expo-server.sh
+Please move or remove them before you merge.
+Aborting
+[+] restart 0/1
+ ⠧ Container palm-tree-classifier-app-app-1 Restarting                                               0.7s
+abdullah@verusserver:~/palm-tree-classifier-app$ git stash
+Saved working directory and index state WIP on main: 67fbfb9 Ensure database tables are created before seeding knowledge base
+abdullah@verusserver:~/palm-tree-classifier-app$ mv start-expo-server.sh ~/start-expo-server.sh.bak
+abdullah@verusserver:~/palm-tree-classifier-app$ git pull
+Updating 67fbfb9..d90fbcb
+Fast-forward
+ ...erusserver-cd-palm-tree-classifier-app-abdull_1772218430350.txt |  27 ++
+ ...ing-static-Expo-files-with-dynamic-manifest-r_1772216929470.txt |  31 ++
+ attached_assets/image_1772218729031.png                            | Bin 0 -> 69842 bytes
+ attached_assets/image_1772218784632.png                            | Bin 0 -> 64311 bytes
+ attached_assets/image_1772223827389.png                            | Bin 0 -> 61933 bytes
+ attached_assets/image_1772223982074.png                            | Bin 0 -> 10255 bytes
+ attached_assets/image_1772224421101.png                            | Bin 0 -> 826865 bytes
+ backend/db.ts                                                      |   4 +
+ backend/index.ts                                                   |   6 +-
+ backend/rag-engine.ts                                              |  77 +++-
+ backend/routes.ts                                                  |   5 +-
+ backend/seed.ts                                                    |  64 ++-
+ docker-compose.yml                                                 |   1 +
+ replit.md                                                          |   8 +-
+ server_dist/index.js                                               | 697 ++++++++++++++++++------------
+ shared/schema.ts                                                   |   1 +
+ start-expo-server.sh                                               |   5 +
+ 17 files changed, 627 insertions(+), 299 deletions(-)
+ create mode 100644 attached_assets/Pasted-abdullah-verusserver-cd-palm-tree-classifier-app-abdull_1772218430350.txt
+ create mode 100644 attached_assets/Pasted-app-1-Serving-static-Expo-files-with-dynamic-manifest-r_1772216929470.txt
+ create mode 100644 attached_assets/image_1772218729031.png
+ create mode 100644 attached_assets/image_1772218784632.png
+ create mode 100644 attached_assets/image_1772223827389.png
+ create mode 100644 attached_assets/image_1772223982074.png
+ create mode 100644 attached_assets/image_1772224421101.png
+ create mode 100755 start-expo-server.sh
+abdullah@verusserver:~/palm-tree-classifier-app$ git stash pop
+Auto-merging backend/index.ts
+Auto-merging docker-compose.yml
+CONFLICT (content): Merge conflict in docker-compose.yml
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   backend/index.ts
+
+Unmerged paths:
+  (use "git restore --staged <file>..." to unstage)
+  (use "git add <file>..." to mark resolution)
+        both modified:   docker-compose.yml
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .env.save
+
+The stash entry is kept in case you need it again.
+abdullah@verusserver:~/palm-tree-classifier-app$ mv ~/start-expo-server.sh.bak start-expo-server.sh
+abdullah@verusserver:~/palm-tree-classifier-app$ docker compose restart app
+yaml: line 32: could not find expected ':'
+abdullah@verusserver:~/palm-tree-classifier-app$ docker compose logs -f app
+yaml: line 32: could not find expected ':'
+abdullah@verusserver:~/palm-tree-classifier-app$ 
