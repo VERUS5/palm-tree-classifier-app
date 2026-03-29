@@ -10,6 +10,7 @@ A bilingual (Arabic/English) mobile app for identifying date palm tree varieties
 - **Database**: PostgreSQL (Neon) with Drizzle ORM
 - **AI Classification**: 5-fold ConvNeXt Small ensemble (PyTorch, torchvision) for palm variety classification
 - **AI Chat**: Google Gemini via Replit AI Integrations (vision descriptions + RAG chat)
+- **RAG Search**: Hybrid BM25 (55%) + cosine similarity (45%) using `gemini-embedding-001` (3072-dim vectors stored as `real[]`)
 - **Styling**: React Native StyleSheet with Inter font family
 - **i18n**: Custom React context (lib/i18n.tsx) with Arabic/English toggle
 
@@ -74,9 +75,14 @@ A bilingual (Arabic/English) mobile app for identifying date palm tree varieties
 
 ## Database Tables
 - documents: Palm tree variety documents
-- chunks: Knowledge base text chunks by topic
+- chunks: Knowledge base text chunks by topic — includes `embedding real[]` (3072-dim from gemini-embedding-001)
 - chat_sessions: User chat sessions with tree classification
 - chat_messages: Individual chat messages
+
+## Secrets Required
+- `GEMINI_API_KEY` — direct Google AI Studio key (needed for embedding generation at startup backfill)
+- `SESSION_SECRET` — Express session secret
+- `AI_INTEGRATIONS_GEMINI_API_KEY` / `AI_INTEGRATIONS_GEMINI_BASE_URL` — Replit AI Integration (for chat + vision, provided by Replit)
 
 ## Image Upload
 - Uses base64 JSON (not FormData) for cross-platform compatibility
