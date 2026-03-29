@@ -1,0 +1,388 @@
+p-1  |  * Running on all addresses (0.0.0.0)
+app-1  |  * Running on http://127.0.0.1:5001
+app-1  |  * Running on http://172.21.0.3:5001
+app-1  | INFO:werkzeug:Press CTRL+C to quit
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions 304 in 29ms :: []
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [27/Feb/2026 20:39:27] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Shishi',
+app-1  |   confidence: 0.4001,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.3336, Razeez: 0.2663, Shishi: 0.4001 }
+app-1  | }
+app-1  | POST /api/classify 200 in 960ms :: {"isPalm":false,"class":"Unknown","confidenc…
+app-1  | POST /api/sessions 201 in 26ms :: {"id":1,"treeClass":"Unknown","imageData":nul…
+app-1  | GET /api/sessions 200 in 7ms :: [{"id":1,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/1/messages 200 in 6ms :: []
+app-1  | POST /api/sessions/1/messages 201 in 7ms :: {"id":1,"sessionId":1,"role":"assis…
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [27/Feb/2026 20:39:53] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Shishi',
+app-1  |   confidence: 0.9596,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.0133, Razeez: 0.0271, Shishi: 0.9596 }
+app-1  | }
+app-1  | POST /api/classify 200 in 939ms :: {"isPalm":false,"class":"Unknown","confidenc…
+app-1  | POST /api/sessions 201 in 5ms :: {"id":2,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/2/messages 200 in 23ms :: []
+app-1  | POST /api/sessions/2/messages 201 in 6ms :: {"id":2,"sessionId":2,"role":"assis…
+app-1  | [RAG] Query: كم تحتاج من الماء؟
+app-1  | [RAG] Retrieved: 5 chunks, top score: 5.43
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | POST /api/sessions/2/chat 200 in 6207ms
+app-1  | GET /api/sessions 200 in 20ms :: [{"id":2,"treeClass":"Unknown","imageData":nul…
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [27/Feb/2026 20:40:51] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Khalas',
+app-1  |   confidence: 0.9975,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.9975, Razeez: 0.0018, Shishi: 0.0006 }
+app-1  | }
+app-1  | POST /api/classify 200 in 8140ms :: {"isPalm":true,"class":"Khalas","confidence…
+app-1  | POST /api/sessions 201 in 18ms :: {"id":3,"treeClass":"Khalas","imageData":null…
+app-1  | GET /api/sessions/3/messages 200 in 7ms :: []
+app-1  | POST /api/sessions/3/messages 201 in 5ms :: {"id":5,"sessionId":3,"role":"assis…
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions 200 in 20ms :: [{"id":3,"treeClass":"Khalas","imageData":null…
+app-1  | GET /api/sessions/2/messages 200 in 4ms :: [{"id":2,"sessionId":2,"role":"assis…
+app-1  | GET /api/sessions 304 in 2ms :: [{"id":3,"treeClass":"Khalas","imageData":null,…
+app-1  | GET /api/sessions 200 in 20ms :: [{"id":3,"treeClass":"Khalas","imageData":null…
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions 304 in 24ms :: [{"id":3,"treeClass":"Khalas","imageData":null…
+app-1  | GET /api/sessions 200 in 20ms :: [{"id":3,"treeClass":"Khalas","imageData":null…
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [27/Feb/2026 20:51:10] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Shishi',
+app-1  |   confidence: 0.3664,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.3241, Razeez: 0.3095, Shishi: 0.3664 }
+app-1  | }
+app-1  | POST /api/classify 200 in 837ms :: {"isPalm":false,"class":"Unknown","confidenc…
+app-1  | POST /api/sessions 201 in 22ms :: {"id":4,"treeClass":"Unknown","imageData":nul…
+app-1  | GET /api/sessions/4/messages 200 in 6ms :: []
+app-1  | POST /api/sessions/4/messages 201 in 5ms :: {"id":6,"sessionId":4,"role":"assis…
+app-1  | GET /api/sessions 200 in 2ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions/3/messages 200 in 3ms :: [{"id":5,"sessionId":3,"role":"assis…
+app-1  | GET /api/sessions 304 in 2ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/2/messages 200 in 2ms :: [{"id":2,"sessionId":2,"role":"assis…
+app-1  | GET /api/sessions/3/messages 200 in 3ms :: [{"id":5,"sessionId":3,"role":"assis…
+app-1  | GET /api/sessions 304 in 2ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/4/messages 200 in 20ms :: [{"id":6,"sessionId":4,"role":"assi…
+app-1  | GET /api/sessions 304 in 4ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions 200 in 2ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/4/messages 200 in 3ms :: [{"id":6,"sessionId":4,"role":"assis…
+app-1  | GET /api/sessions 304 in 3ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/3/messages 304 in 3ms :: [{"id":5,"sessionId":3,"role":"assis…
+app-1  | GET /api/sessions 304 in 2ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions 200 in 21ms :: [{"id":4,"treeClass":"Unknown","imageData":nul…
+app-1  | GET /api/sessions/3/messages 200 in 2ms :: [{"id":5,"sessionId":3,"role":"assis…
+app-1  | [RAG] Query: متى موسم الحصاد؟
+app-1  | [RAG] Retrieved: 3 chunks, top score: 4.01
+app-1  | POST /api/sessions/3/chat 200 in 1766ms
+app-1  | GET /api/sessions 304 in 15ms :: [{"id":4,"treeClass":"Unknown","imageData":nul…
+app-1  | GET /api/sessions/3/messages 200 in 20ms :: [{"id":5,"sessionId":3,"role":"assi…
+app-1  | GET /api/sessions 304 in 4ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/4/messages 200 in 3ms :: [{"id":6,"sessionId":4,"role":"assis…
+app-1  | GET /api/sessions 304 in 3ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/1/messages 200 in 2ms :: [{"id":1,"sessionId":1,"role":"assis…
+app-1  | GET /api/sessions 304 in 2ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | GET /api/sessions/4/messages 304 in 3ms :: [{"id":6,"sessionId":4,"role":"assis…
+app-1  | GET /api/sessions 304 in 2ms :: [{"id":4,"treeClass":"Unknown","imageData":null…
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions 304 in 19ms :: [{"id":4,"treeClass":"Unknown","imageData":nul…
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [27/Feb/2026 21:15:53] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Khalas',
+app-1  |   confidence: 0.9975,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.9975, Razeez: 0.0018, Shishi: 0.0006 }
+app-1  | }
+app-1  | POST /api/classify 200 in 10449ms :: {"isPalm":true,"class":"Khalas","confidenc…
+app-1  | POST /api/sessions 201 in 18ms :: {"id":5,"treeClass":"Khalas","imageData":null…
+app-1  | GET /api/sessions/5/messages 200 in 6ms :: []
+app-1  | POST /api/sessions/5/messages 201 in 4ms :: {"id":9,"sessionId":5,"role":"assis…
+app-1  | [RAG] Query: وش الفرق بين الخلاص و الشيشي
+app-1  | [RAG] Retrieved: 5 chunks, top score: 2.41
+app-1  | POST /api/sessions/5/chat 200 in 10532ms
+app-1  | [RAG] Query: طريقه التنبيت
+app-1  | [RAG] Retrieved: 1 chunks, top score: 2.30
+app-1  | POST /api/sessions/5/chat 200 in 8440ms
+app-1  | [RAG] Query: لقاح النخل
+app-1  | [RAG] Retrieved: 5 chunks, top score: 5.09
+app-1  | POST /api/sessions/5/chat 200 in 5343ms
+app-1  | GET /api/sessions 200 in 19ms :: [{"id":5,"treeClass":"Khalas","imageData":null…
+app-1  | GET /api/sessions/4/messages 200 in 4ms :: [{"id":6,"sessionId":4,"role":"assis…
+app-1  | GET /api/sessions 304 in 3ms :: [{"id":5,"treeClass":"Khalas","imageData":null,…
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [27/Feb/2026 21:18:49] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Razeez',
+app-1  |   confidence: 0.994,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.0033, Razeez: 0.994, Shishi: 0.0027 }
+app-1  | }
+app-1  | POST /api/classify 200 in 9199ms :: {"isPalm":true,"class":"Razeez","confidence…
+app-1  | POST /api/sessions 201 in 18ms :: {"id":6,"treeClass":"Razeez","imageData":null…
+app-1  | GET /api/sessions/6/messages 200 in 7ms :: []
+app-1  | POST /api/sessions/6/messages 201 in 4ms :: {"id":16,"sessionId":6,"role":"assi…
+app-1  | GET /api/sessions 200 in 2ms :: [{"id":6,"treeClass":"Razeez","imageData":null,…
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [27/Feb/2026 21:19:41] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Shishi',
+app-1  |   confidence: 0.9984,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.0004, Razeez: 0.0011, Shishi: 0.9984 }
+app-1  | }
+app-1  | POST /api/classify 200 in 12122ms :: {"isPalm":true,"class":"Shishi","confidenc…
+app-1  | POST /api/sessions 201 in 18ms :: {"id":7,"treeClass":"Shishi","imageData":null…
+app-1  | GET /api/sessions/7/messages 200 in 7ms :: []
+app-1  | POST /api/sessions/7/messages 201 in 5ms :: {"id":17,"sessionId":7,"role":"assi…
+app-1  | GET /api/sessions 200 in 2ms :: [{"id":7,"treeClass":"Shishi","imageData":null,…
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions 304 in 22ms :: [{"id":7,"treeClass":"Shishi","imageData":null…
+app-1  | DELETE /api/sessions/7 204 in 9ms
+app-1  | DELETE /api/sessions/6 204 in 4ms
+app-1  | DELETE /api/sessions/5 204 in 5ms
+app-1  | DELETE /api/sessions/4 204 in 4ms
+app-1  | DELETE /api/sessions/3 204 in 4ms
+app-1  | DELETE /api/sessions/2 204 in 4ms
+app-1  | DELETE /api/sessions/1 204 in 5ms
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [28/Feb/2026 19:58:07] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Razeez',
+app-1  |   confidence: 0.994,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.0033, Razeez: 0.994, Shishi: 0.0027 }
+app-1  | }
+app-1  | POST /api/classify 200 in 9546ms :: {"isPalm":true,"class":"Razeez","confidence…
+app-1  | POST /api/sessions 201 in 19ms :: {"id":8,"treeClass":"Razeez","imageData":null…
+app-1  | GET /api/sessions/8/messages 200 in 7ms :: []
+app-1  | POST /api/sessions/8/messages 201 in 5ms :: {"id":18,"sessionId":8,"role":"assi…
+app-1  | [RAG] Query: How should I water this tree?
+app-1  | [RAG] Retrieved: 5 chunks, top score: 5.44
+app-1  | POST /api/sessions/8/chat 200 in 2826ms
+app-1  | GET /api/sessions 200 in 19ms :: [{"id":8,"treeClass":"Razeez","imageData":null…
+app-1  | GET /api/sessions/8/messages 200 in 18ms :: [{"id":18,"sessionId":8,"role":"ass…
+app-1  | [RAG] Query: How to make a burger
+app-1  | [RAG] Retrieved: 5 chunks, top score: 2.57
+app-1  | POST /api/sessions/8/chat 200 in 2159ms
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl http://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | GET /api/sessions 200 in 208ms :: [{"id":8,"treeClass":"Razeez","imageData":nul…
+app-1  | [inference] INFO:werkzeug:127.0.0.1 - - [21/Mar/2026 05:52:45] "POST /predict HTTP/1.1" 200 -
+app-1  | PyTorch model prediction: {
+app-1  |   class: 'Shishi',
+app-1  |   confidence: 0.5472,
+app-1  |   folds_used: 5,
+app-1  |   probabilities: { Khalas: 0.2001, Razeez: 0.2528, Shishi: 0.5472 }
+app-1  | }
+app-1  | POST /api/classify 200 in 17133ms :: {"isPalm":false,"class":"Unknown","confide…
+app-1  | POST /api/sessions 201 in 27ms :: {"id":9,"treeClass":"Unknown","imageData":nul…
+app-1  | GET /api/sessions/9/messages 200 in 16ms :: []
+app-1  | POST /api/sessions/9/messages 201 in 9ms :: {"id":23,"sessionId":9,"role":"assi…
+app-1  | [RAG] Query: كيف أعتني بالنخلة؟
+app-1  | [RAG] Retrieved: 2 chunks, top score: 0.00
+app-1  | POST /api/sessions/9/chat 200 in 9163ms
+app-1  | [RAG] Query: تعرف الكرب
+app-1  | [RAG] Retrieved: 5 chunks, top score: 1.80
+app-1  | POST /api/sessions/9/chat 200 in 4952ms
+app-1  | [RAG] Query: ما هي الطبينه
+app-1  | [RAG] Retrieved: 4 chunks, top score: 1.80
+app-1  | POST /api/sessions/9/chat 200 in 5364ms
+app-1  | [RAG] Query: قلي انواع القهوه
+app-1  | [RAG] Retrieved: 4 chunks, top score: 2.30
+app-1  | POST /api/sessions/9/chat 200 in 2552ms
+app-1  | [RAG] Query: لكن هناك نوع من أنواع القهوه يستخلص من النخيل
+app-1  | [RAG] Retrieved: 5 chunks, top score: 2.66
+app-1  | POST /api/sessions/9/chat 200 in 6551ms
+app-1  | [RAG] Query: وفي قهوة السعف
+app-1  | [RAG] Retrieved: 5 chunks, top score: 6.20
+app-1  | POST /api/sessions/9/chat 200 in 6871ms
+app-1  | [RAG] Query: تعرف زكي السالم الي يبيع قهوه بنواة التمر
+app-1  | [RAG] Retrieved: 5 chunks, top score: 7.92
+app-1  | POST /api/sessions/9/chat 200 in 2656ms
+app-1  | [RAG] Query: مين صنعك
+app-1  | [RAG] Retrieved: 5 chunks, top score: 5.43
+app-1  | POST /api/sessions/9/chat 200 in 1376ms
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl http://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | baseUrl https://api.vverussserver.com
+app-1  | expoServerUrl expo.vverussserver.com
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | Database tables verified/created successfully
+app-1  | Knowledge base already seeded with full RAG data, skipping...
+app-1  | express server serving on port 5000
+app-1  | [inference] INFO:__main__:Loading fold 1 from /app/backend/models/convnext_small_fold1_best.pth...
+app-1  | [inference] INFO:__main__:Fold 1 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 2 from /app/backend/models/convnext_small_fold2_best.pth...
+app-1  | [inference] INFO:__main__:Fold 2 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 3 from /app/backend/models/convnext_small_fold3_best.pth...
+app-1  | [inference] INFO:__main__:Fold 3 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 4 from /app/backend/models/convnext_small_fold4_best.pth...
+app-1  | [inference] INFO:__main__:Fold 4 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 5 from /app/backend/models/convnext_small_fold5_best.pth...
+app-1  | [inference] INFO:__main__:Fold 5 loaded successfully
+app-1  | INFO:__main__:Loaded 5 model folds for ensemble prediction
+app-1  | [inference] INFO:__main__:Starting inference server on port 5001
+app-1  | [inference] * Tip: There are .env files present. Install python-dotenv to use them.
+app-1  | [inference] * Serving Flask app 'inference_server'
+app-1  | [inference] * Debug mode: off
+app-1  | [inference] INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+app-1  |  * Running on all addresses (0.0.0.0)
+app-1  |  * Running on http://127.0.0.1:5001
+app-1  |  * Running on http://172.21.0.3:5001
+app-1  | [inference] INFO:werkzeug:Press CTRL+C to quit
+app-1  | Serving static Expo files with dynamic manifest routing
+app-1  | Expo routing: Checking expo-platform header on / and /manifest
+app-1  | Starting Python inference server with 5 model files...
+app-1  | (node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/server_dist/index.js is not specified and it doesn't parse as CommonJS.
+app-1  | Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+app-1  | To eliminate this warning, add "type": "module" to /app/package.json.
+app-1  | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1  | Database tables verified/created successfully
+app-1  | Knowledge base already seeded with full RAG data, skipping...
+app-1  | express server serving on port 5000
+app-1  | [inference] INFO:__main__:Loading fold 1 from /app/backend/models/convnext_small_fold1_best.pth...
+app-1  | [inference] INFO:__main__:Fold 1 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 2 from /app/backend/models/convnext_small_fold2_best.pth...
+app-1  | [inference] INFO:__main__:Fold 2 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 3 from /app/backend/models/convnext_small_fold3_best.pth...
+app-1  | [inference] INFO:__main__:Fold 3 loaded successfully
+app-1  | INFO:__main__:Loading fold 4 from /app/backend/models/convnext_small_fold4_best.pth...
+app-1  | [inference] INFO:__main__:Fold 4 loaded successfully
+app-1  | [inference] INFO:__main__:Loading fold 5 from /app/backend/models/convnext_small_fold5_best.pth...
+app-1  | [inference] INFO:__main__:Fold 5 loaded successfully
+app-1  | INFO:__main__:Loaded 5 model folds for ensemble prediction
+app-1  | [inference] INFO:__main__:Starting inference server on port 5001
+app-1  | [inference] * Tip: There are .env files present. Install python-dotenv to use them.
+app-1  | [inference] * Serving Flask app 'inference_server'
+app-1  |  * Debug mode: off
+app-1  | [inference] INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+app-1  |  * Running on all addresses (0.0.0.0)
+app-1  |  * Running on http://127.0.0.1:5001
+app-1  |  * Running on http://172.21.0.3:5001
+app-1  | INFO:werkzeug:Press CTRL+C to quit
