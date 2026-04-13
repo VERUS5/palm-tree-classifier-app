@@ -217,11 +217,10 @@ export default function ChatScreen() {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
         const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
+        buffer = done ? "" : (lines.pop() || "");
 
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
@@ -252,6 +251,8 @@ export default function ChatScreen() {
             throw e;
           }
         }
+
+        if (done) break;
       }
     } catch (error) {
       console.error("Chat error:", error);

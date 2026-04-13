@@ -1177,7 +1177,7 @@ STRICT SCOPE RULE:
         contents: chatHistory,
         config: {
           systemInstruction: systemPrompt,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 8192,
           temperature: 0.7
         }
       });
