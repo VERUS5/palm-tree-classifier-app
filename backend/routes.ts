@@ -410,8 +410,8 @@ STRICT SCOPE RULE:
         chunksWithKeywords: hasKeywords,
         topicDistribution: topicCounts,
         categoryDistribution: categoryCounts,
-        ragVersion: 2,
-        features: ["bm25_scoring", "topic_boost", "keyword_matching", "query_expansion", "bilingual_ar_en"],
+        ragVersion: 3,
+        features: ["bm25_scoring", "cosine_similarity", "hybrid_55bm25_45cosine", "topic_boost", "keyword_matching", "query_expansion", "bilingual_ar_en", "gemini_embedding_001_3072dim"],
       });
     } catch (error) {
       console.error("RAG stats error:", error);

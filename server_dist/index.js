@@ -532,7 +532,7 @@ ${text2}`;
 }
 async function retrieveWithQueryExpansion(query, category, lang = "en", topK = 5) {
   const directResult = await retrieveRAGContext(query, category, lang, topK);
-  if (directResult.sources.length > 0 && directResult.sources[0].score > 3) {
+  if (directResult.sources.length > 0 && directResult.sources[0].score > 0.7) {
     return directResult;
   }
   try {
@@ -1256,8 +1256,8 @@ STRICT SCOPE RULE:
         chunksWithKeywords: hasKeywords,
         topicDistribution: topicCounts,
         categoryDistribution: categoryCounts,
-        ragVersion: 2,
-        features: ["bm25_scoring", "topic_boost", "keyword_matching", "query_expansion", "bilingual_ar_en"]
+        ragVersion: 3,
+        features: ["bm25_scoring", "cosine_similarity", "hybrid_55bm25_45cosine", "topic_boost", "keyword_matching", "query_expansion", "bilingual_ar_en", "gemini_embedding_001_3072dim"]
       });
     } catch (error) {
       console.error("RAG stats error:", error);

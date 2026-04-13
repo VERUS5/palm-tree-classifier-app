@@ -329,7 +329,7 @@ export async function retrieveWithQueryExpansion(
 ): Promise<{ context: string; sources: ScoredChunk[]; debugInfo: object }> {
   const directResult = await retrieveRAGContext(query, category, lang, topK);
 
-  if (directResult.sources.length > 0 && directResult.sources[0].score > 3.0) {
+  if (directResult.sources.length > 0 && directResult.sources[0].score > 0.7) {
     return directResult;
   }
 
