@@ -51,7 +51,7 @@ This project was collaboratively developed by:
 
 **Supervision:**
 * **Project Supervisor:** Dr. Abdulelah Abdullah Algosaibi
-* **Committee Members:** Mohamed Shujah Sameem and Abdul Raouf Mohammad
+* **Committee Members:** M Shujah Islam Sameem
 
 ## Legal and Academic Disclaimer
 This software and its associated research were developed and submitted in partial fulfillment of the requirements for the degree of Bachelor of Science in Computer Science at the **College of Computer Sciences & Information Technology, King Faisal University**, in Al-Ahsa, Saudi Arabia. 
