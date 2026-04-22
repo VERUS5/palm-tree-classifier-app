@@ -8,16 +8,19 @@ This project is a Semantic AI Framework designed to classify palm tree varieties
 Below is a look at the application in action and the performance of our underlying AI model:
 
 **1. Real-Time Image Classification**
+
 ![Classification View](./Picture1.png)
 
 *The cross-platform mobile application allows users to upload or capture images of palm trees for instant analysis. In the example above, the backend AI inference server successfully identifies the 'Khalas' variety with a high confidence score.*
 
 **2. RAG-Powered Agricultural Chatbot**
+
 ![Chat Interface](./Picture2.png)
 
 *Beyond visual classification, the app features a Retrieval-Augmented Generation (RAG) chat assistant to address the agricultural knowledge gap. Farmers can ask complex questions—such as inquiries about "bunch bagging" (تكميم العذوق)—and receive detailed, context-aware answers generated from a specialized database of agricultural documents.*
 
 **3. Model Performance (Confusion Matrix)**
+
 ![Confusion Matrix](./output.png)
 
 *Our custom ensemble of ConvNeXt-Small models demonstrated exceptional reliability. The confusion matrix above illustrates the high accuracy and minimal misclassification achieved across all three test classes (Khalas, Razeez, and Shishi) during our final testing phase.*
