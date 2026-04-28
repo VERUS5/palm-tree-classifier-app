@@ -140,6 +140,8 @@ var aiConfig = {
 };
 if (geminiBaseUrl) {
   aiConfig.httpOptions = { apiVersion: "", baseUrl: geminiBaseUrl };
+} else {
+  aiConfig.httpOptions = { apiVersion: "v1" };
 }
 var ai = new GoogleGenAI(aiConfig);
 async function generateEmbedding(text2) {
@@ -907,6 +909,8 @@ var aiConfig2 = {
 };
 if (geminiBaseUrl2) {
   aiConfig2.httpOptions = { apiVersion: "", baseUrl: geminiBaseUrl2 };
+} else {
+  aiConfig2.httpOptions = { apiVersion: "v1" };
 }
 var ai2 = new GoogleGenAI2(aiConfig2);
 async function registerRoutes(app2) {

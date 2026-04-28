@@ -11,6 +11,8 @@ const aiConfig: ConstructorParameters<typeof GoogleGenAI>[0] = {
 };
 if (geminiBaseUrl) {
   aiConfig.httpOptions = { apiVersion: "", baseUrl: geminiBaseUrl };
+} else {
+  aiConfig.httpOptions = { apiVersion: "v1" };
 }
 const ai = new GoogleGenAI(aiConfig);
 
