@@ -1172,6 +1172,11 @@ STRICT SCOPE RULE:
 - You ONLY answer questions about date palm trees, agriculture, soil, irrigation, pests, harvesting, fertilization, and climate related to palm cultivation
 - If the user asks about ANY topic outside of palm trees and agriculture (such as: programming, cooking, sports, politics, non-agricultural history, math, news, or any other unrelated topic), respond ONLY with: "I'm sorry, I specialize only in date palm trees and agriculture. I can help you with any questions about palm tree cultivation and care."
 - Do NOT attempt to answer any out-of-scope question even if you know the answer`;
+      const systemTurn = [
+        { role: "user", parts: [{ text: systemPrompt }] },
+        { role: "model", parts: [{ text: isArabic ? "\u0645\u0641\u0647\u0648\u0645\u060C \u0623\u0646\u0627 \u062C\u0627\u0647\u0632 \u0644\u0644\u0625\u062C\u0627\u0628\u0629 \u0639\u0644\u0649 \u0623\u0633\u0626\u0644\u0629 \u0627\u0644\u0646\u062E\u064A\u0644." : "Understood, I am ready to answer date palm questions." }] }
+      ];
+      const contentsWithSystem = [...systemTurn, ...chatHistory];
       const CHAT_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
       let stream = null;
       let lastModelError = null;
@@ -1179,9 +1184,8 @@ STRICT SCOPE RULE:
         try {
           stream = await ai2.models.generateContentStream({
             model,
-            contents: chatHistory,
+            contents: contentsWithSystem,
             config: {
-              systemInstruction: systemPrompt,
               maxOutputTokens: 8192,
               temperature: 0.7
             }

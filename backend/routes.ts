@@ -322,6 +322,12 @@ STRICT SCOPE RULE:
 - If the user asks about ANY topic outside of palm trees and agriculture (such as: programming, cooking, sports, politics, non-agricultural history, math, news, or any other unrelated topic), respond ONLY with: "I'm sorry, I specialize only in date palm trees and agriculture. I can help you with any questions about palm tree cultivation and care."
 - Do NOT attempt to answer any out-of-scope question even if you know the answer`;
 
+      const systemTurn = [
+        { role: "user" as const, parts: [{ text: systemPrompt }] },
+        { role: "model" as const, parts: [{ text: isArabic ? "مفهوم، أنا جاهز للإجابة على أسئلة النخيل." : "Understood, I am ready to answer date palm questions." }] },
+      ];
+      const contentsWithSystem = [...systemTurn, ...chatHistory];
+
       const CHAT_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
       let stream = null;
       let lastModelError: Error | null = null;
@@ -330,9 +336,8 @@ STRICT SCOPE RULE:
         try {
           stream = await ai.models.generateContentStream({
             model,
-            contents: chatHistory,
+            contents: contentsWithSystem,
             config: {
-              systemInstruction: systemPrompt,
               maxOutputTokens: 8192,
               temperature: 0.7,
             },
