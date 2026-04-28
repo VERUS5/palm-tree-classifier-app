@@ -1,0 +1,59 @@
+abdullah@verusserver:~/palm-tree-classifier-app$ python3 - << 'EOF'
+with open('backend/routes.ts', 'r') as f:
+    lines = f.readlines()
+
+# Show lines 320-360 so we can see the exact structure
+for i, line in enumerate(lines[315:365], start=316):
+    print(f"{i}: {line}", end='')
+EOF
+316: - Be friendly, professional, and concise
+317: - Provide practical tips with specific measurements and numbers when possible
+318: - Include actionable recommendations
+319: 
+320: STRICT SCOPE RULE:
+321: - You ONLY answer questions about date palm trees, agriculture, soil, irrigation, pests, harvesting, fertilization, and climate related to palm cultivation
+322: - If the user asks about ANY topic outside of palm trees and agriculture (such as: programming, cooking, sports, politics, non-agricultural history, math, news, or any other unrelated topic), respond ONLY with: "I'm sorry, I specialize only in date palm trees and agriculture. I can help you with any questions about palm tree cultivation and care."
+323: - Do NOT attempt to answer any out-of-scope question even if you know the answer`;
+324: 
+325:       res.setHeader("Content-Type", "text/event-stream");
+326:       res.setHeader("Cache-Control", "no-cache, no-transform");
+327:       res.setHeader("X-Accel-Buffering", "no");
+328:       res.flushHeaders();
+329: 
+330:       const stream = await ai.models.generateContentStream({
+331:         model: "gemini-1.5-flash",
+332:         contents: chatHistory,
+333:         config: {
+334:           systemInstruction: systemPrompt,
+335:           maxOutputTokens: 8192,
+336:           temperature: 0.7,
+337:         },
+338:       });
+339: 
+340:       let fullResponse = "";
+341:       for await (const chunk of stream) {
+342:         const text = chunk.text || "";
+343:         if (text) {
+344:           fullResponse += text;
+345:           res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+346:         }
+347:       }
+348: 
+349:       await db.insert(chatMessages).values({ sessionId, role: "assistant", content: fullResponse });
+350: 
+351:       res.write(`data: [DONE]\n\n`);
+352:       res.end();
+353:     } catch (error) {
+354:       console.error("Chat error:", error);
+355:       if (res.headersSent) {
+356:         res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+357:         res.end();
+358:       } else {
+359:         res.status(500).json({ error: "Failed to process chat" });
+360:       }
+361:     }
+362:   });
+363: 
+364:   app.post("/api/rag/search", async (req: Request, res: Response) => {
+365:     try {
+abdullah@verusserver:~/palm-tree-classifier-app$ 
