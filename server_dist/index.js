@@ -1168,19 +1168,34 @@ STRICT SCOPE RULE:
 - You ONLY answer questions about date palm trees, agriculture, soil, irrigation, pests, harvesting, fertilization, and climate related to palm cultivation
 - If the user asks about ANY topic outside of palm trees and agriculture (such as: programming, cooking, sports, politics, non-agricultural history, math, news, or any other unrelated topic), respond ONLY with: "I'm sorry, I specialize only in date palm trees and agriculture. I can help you with any questions about palm tree cultivation and care."
 - Do NOT attempt to answer any out-of-scope question even if you know the answer`;
+      const CHAT_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+      let stream = null;
+      let lastModelError = null;
+      for (const model of CHAT_MODELS) {
+        try {
+          stream = await ai2.models.generateContentStream({
+            model,
+            contents: chatHistory,
+            config: {
+              systemInstruction: systemPrompt,
+              maxOutputTokens: 8192,
+              temperature: 0.7
+            }
+          });
+          console.log(`[chat] Using model: ${model}`);
+          break;
+        } catch (err) {
+          lastModelError = err;
+          console.warn(`[chat] Model ${model} failed: ${err.message}, trying next...`);
+        }
+      }
+      if (!stream) {
+        throw lastModelError || new Error("All models failed");
+      }
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache, no-transform");
       res.setHeader("X-Accel-Buffering", "no");
       res.flushHeaders();
-      const stream = await ai2.models.generateContentStream({
-        model: "gemini-2.5-flash",
-        contents: chatHistory,
-        config: {
-          systemInstruction: systemPrompt,
-          maxOutputTokens: 8192,
-          temperature: 0.7
-        }
-      });
       let fullResponse = "";
       for await (const chunk of stream) {
         const text2 = chunk.text || "";
@@ -1204,7 +1219,7 @@ STRICT SCOPE RULE:
 `);
         res.end();
       } else {
-        res.status(500).json({ error: "Failed to process chat" });
+        res.status(500).json({ error: "Failed to process chat", detail: error.message });
       }
     }
   });
